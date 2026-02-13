@@ -1,0 +1,77 @@
+/**
+ * Complaint Chat - Additional Styles
+ * Tailwind CSS handles most styling via index.html
+ * This file contains custom animations and overrides
+ */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom selection colors */
+::selection {
+    background-color: #135bec;
+    color: white;
+}
+
+/* Toast animations */
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Message animations */
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Focus styles for better accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #135bec;
+    outline-offset: 2px;
+}
+
+/* Custom textarea styling */
+textarea {
+    line-height: 1.5;
+}
+
+/* Ensure proper z-index stacking */
+.autocomplete-dropdown {
+    z-index: 1000;
+}
+
+/* Print styles */
+@media print {
+
+    header,
+    footer,
+    #options-container,
+    #input-area,
+    #toast-container {
+        display: none !important;
+    }
+
+    #chat-container {
+        overflow: visible;
+        height: auto;
+    }
+}
