@@ -1,0 +1,14 @@
+[Unit]
+Description=Complaint Chat Flask App
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/complaint-chat
+Environment="PATH=/opt/complaint-chat/venv/bin"
+ExecStart=/opt/complaint-chat/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 --timeout 120 app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

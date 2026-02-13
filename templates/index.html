@@ -1,5 +1,12 @@
 <!DOCTYPE html>
-<html class="dark" lang="ru">
+<html lang="ru">
+<script>
+    // Initialize theme before render to prevent flash
+    (function () {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+</script>
 
 <head>
     <meta charset="utf-8" />
@@ -119,14 +126,20 @@
             bottom: 100%;
             left: 0;
             right: 0;
-            background: #232f48;
-            border: 1px solid #324467;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.1);
             max-height: 280px;
             overflow-y: auto;
             z-index: 1000;
             margin-bottom: 8px;
+        }
+
+        .dark .autocomplete-dropdown {
+            background: #232f48;
+            border: 1px solid #324467;
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
         }
 
         /* Mandatory indicator for autocomplete */
@@ -154,8 +167,12 @@
         .autocomplete-item {
             padding: 12px 16px;
             cursor: pointer;
-            border-bottom: 1px solid #324467;
+            border-bottom: 1px solid #e2e8f0;
             transition: background 0.15s ease;
+        }
+
+        .dark .autocomplete-item {
+            border-bottom-color: #324467;
         }
 
         .autocomplete-item:last-child {
@@ -164,13 +181,22 @@
 
         .autocomplete-item:hover,
         .autocomplete-item.selected {
+            background: rgba(19, 91, 236, 0.1);
+        }
+
+        .dark .autocomplete-item:hover,
+        .dark .autocomplete-item.selected {
             background: rgba(19, 91, 236, 0.15);
         }
 
         .ac-company-name {
             font-weight: 500;
-            color: #ffffff;
+            color: #1e293b;
             margin-bottom: 4px;
+        }
+
+        .dark .ac-company-name {
+            color: #ffffff;
         }
 
         .ac-company-details {
@@ -178,6 +204,10 @@
             flex-wrap: wrap;
             gap: 8px;
             font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .dark .ac-company-details {
             color: #92a4c9;
         }
 
@@ -206,10 +236,18 @@
                 </div>
                 <h1 class="text-lg font-bold tracking-tight">Complaint AI</h1>
             </div>
-            <button id="restart-btn"
-                class="text-primary font-semibold text-sm px-2 py-1 rounded-lg hover:bg-primary/10 transition-colors">
-                <span class="material-symbols-outlined text-[20px]">refresh</span>
-            </button>
+            <div class="flex items-center gap-1">
+                <button id="theme-toggle-btn"
+                    class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-white transition-colors"
+                    title="Переключить тему">
+                    <span class="material-symbols-outlined text-[20px] dark:hidden">dark_mode</span>
+                    <span class="material-symbols-outlined text-[20px] hidden dark:inline">light_mode</span>
+                </button>
+                <button id="restart-btn"
+                    class="text-primary font-semibold text-sm px-2 py-1 rounded-lg hover:bg-primary/10 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">refresh</span>
+                </button>
+            </div>
         </div>
 
         <!-- Progress Bar -->
@@ -283,6 +321,20 @@
     <div id="toast-container" class="fixed bottom-24 right-4 z-50 flex flex-col gap-2"></div>
 
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    <script>
+        // Theme toggle
+        document.getElementById('theme-toggle-btn').addEventListener('click', function () {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('dark');
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
 </body>
 
 </html>
