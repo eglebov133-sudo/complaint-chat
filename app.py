@@ -1049,6 +1049,16 @@ def admin_metrika_utm():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/admin/metrika/visits')
+def admin_metrika_visits():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    try:
+        return jsonify(metrika_service.get_visits_detail(
+            request.args.get('from', ''), request.args.get('to', '')))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ==================== YANDEX DIRECT ADMIN API ====================
 

@@ -194,34 +194,55 @@ class MetrikaService:
 
         return {'campaigns': campaigns}
 
-    def get_visits_detail(self, date_from: str = '', date_to: str = '', limit: int = 50) -> dict:
-        """Последние визиты с детализацией: источник, запрос, UTM, устройство"""
+    def get_visits_detail(self, date_from: str = '', date_to: str = '', limit: int = 100) -> dict:
+        """Per-visit data: search phrase, our keyword, source, campaign, bounce, duration"""
         if not date_from:
             date_from = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
         if not date_to:
             date_to = datetime.now().strftime('%Y-%m-%d')
 
         data = self._request({
-            'metrics': 'ym:s:visits,ym:s:bounceRate,ym:s:avgVisitDurationSeconds',
-            'dimensions': 'ym:s:date,ym:s:lastTrafficSource,ym:s:lastSearchPhrase,ym:s:lastUTMTerm',
+            'metrics': 'ym:s:visits,ym:s:bounceRate,ym:s:avgVisitDurationSeconds,ym:s:pageDepth',
+            'dimensions': 'ym:s:date,ym:s:lastSearchPhrase,ym:s:lastUTMTerm,ym:s:lastTrafficSource,ym:s:lastUTMCampaign,ym:s:lastUTMMedium',
             'date1': date_from,
             'date2': date_to,
-            'sort': '-ym:s:date',
+            'sort': '-ym:s:date,-ym:s:visits',
             'limit': limit,
         })
+
+        source_names = {
+            'organic': '🔍 Поиск', 'ad': '📢 Реклама', 'direct': '🔗 Прямой',
+            'referral': '🔄 Переходы', 'social': '📱 Соцсети',
+            'internal': '🏠 Внутренний', 'recommend': '💡 Рекомендации',
+            'messenger': '💬 Мессенджеры', 'email': '📧 Email',
+        }
 
         visits = []
         for item in data.get('data', []):
             dims = item['dimensions']
             m = item['metrics']
+            src_id = dims[3].get('id', dims[3].get('name', ''))
+            medium = dims[5].get('name', '')
+            if medium in ('cpc', 'search'):
+                source_label = '🔍 Поиск (Директ)'
+            elif medium in ('display', 'cpm', 'banner'):
+                source_label = '📢 РСЯ'
+            elif src_id == 'ad':
+                source_label = '📢 Реклама'
+            else:
+                source_label = source_names.get(src_id, dims[3].get('name', src_id))
             visits.append({
                 'date': dims[0].get('name', ''),
-                'source': dims[1].get('name', ''),
-                'search_phrase': dims[2].get('name', ''),
-                'utm_term': dims[3].get('name', ''),
+                'search_phrase': dims[1].get('name', ''),
+                'keyword': dims[2].get('name', ''),
+                'source': source_label,
+                'source_id': src_id,
+                'medium': medium,
+                'campaign': dims[4].get('name', ''),
                 'visits': int(m[0]),
                 'bounce_rate': round(m[1], 1),
                 'avg_duration': int(m[2]),
+                'depth': round(m[3], 1),
             })
 
         return {'visits': visits, 'total': data.get('total_rows', 0)}
