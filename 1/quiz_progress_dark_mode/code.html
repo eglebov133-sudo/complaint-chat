@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quiz Progress Dark Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622", // As per theme config
+                        "surface-dark": "#1c2433", // Slightly lighter for cards/bubbles
+                        "surface-dark-2": "#252e40", // Even lighter for hovers
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for hidden scroll feel */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-100 antialiased h-screen overflow-hidden flex justify-center bg-gray-900">
+<!-- Mobile Container mimicking iPhone frame -->
+<div class="relative w-full max-w-md h-full bg-background-light dark:bg-background-dark flex flex-col shadow-2xl overflow-hidden">
+<!-- Status Bar Placeholder (iOS Style) -->
+<div class="h-12 w-full flex items-end justify-between px-6 pb-2 text-xs font-medium text-slate-400 z-20 bg-background-light dark:bg-background-dark/95 backdrop-blur-sm">
+<span>9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<!-- Header -->
+<header class="flex flex-col bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 z-20 pb-4 pt-2 px-4">
+<div class="flex items-center justify-between mb-4">
+<button class="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons-round text-slate-600 dark:text-slate-300">chevron_left</span>
+</button>
+<h1 class="text-base font-semibold text-center">New Complaint</h1>
+<button class="p-2 -mr-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons-round text-slate-600 dark:text-slate-300">more_horiz</span>
+</button>
+</div>
+<!-- Progress Section -->
+<div class="w-full px-2">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Step 3 of 7</span>
+<span class="text-xs font-medium text-primary">Housing Violation</span>
+</div>
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 42%;"></div>
+</div>
+</div>
+</header>
+<!-- Chat Stream Area -->
+<main class="flex-1 overflow-y-auto p-4 space-y-6 hide-scrollbar relative z-10">
+<!-- Timestamp -->
+<div class="flex justify-center">
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide bg-slate-100 dark:bg-surface-dark px-3 py-1 rounded-full">Today, 9:30 AM</span>
+</div>
+<!-- Bot Message 1 -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+<span class="material-icons-round text-white text-sm">gavel</span>
+</div>
+<div class="flex flex-col max-w-[80%] gap-1">
+<div class="bg-white dark:bg-surface-dark p-3.5 rounded-2xl rounded-tl-none shadow-sm text-sm leading-relaxed text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800/50">
+                        Hello. I'm your legal assistant. What type of violation are you reporting today?
+                    </div>
+</div>
+</div>
+<!-- User Reply 1 -->
+<div class="flex flex-row-reverse gap-3">
+<div class="flex flex-col max-w-[80%] items-end gap-1">
+<div class="bg-primary text-white p-3.5 rounded-2xl rounded-tr-none shadow-md shadow-primary/10 text-sm leading-relaxed">
+                        It's a noise complaint.
+                    </div>
+<span class="text-[10px] text-slate-400 mr-1">Read 9:32 AM</span>
+</div>
+</div>
+<!-- Bot Message 2 -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+<span class="material-icons-round text-white text-sm">gavel</span>
+</div>
+<div class="flex flex-col max-w-[80%] gap-1">
+<div class="bg-white dark:bg-surface-dark p-3.5 rounded-2xl rounded-tl-none shadow-sm text-sm leading-relaxed text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800/50">
+                        Understood. Is this a residential or commercial property?
+                    </div>
+</div>
+</div>
+<!-- User Reply 2 -->
+<div class="flex flex-row-reverse gap-3">
+<div class="flex flex-col max-w-[80%] items-end gap-1">
+<div class="bg-primary text-white p-3.5 rounded-2xl rounded-tr-none shadow-md shadow-primary/10 text-sm leading-relaxed">
+                        Residential
+                    </div>
+<span class="text-[10px] text-slate-400 mr-1">Read 9:33 AM</span>
+</div>
+</div>
+<!-- Bot Message 3 (Active) -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+<span class="material-icons-round text-white text-sm">gavel</span>
+</div>
+<div class="flex flex-col max-w-[85%] gap-1">
+<div class="bg-white dark:bg-surface-dark p-4 rounded-2xl rounded-tl-none shadow-sm text-sm leading-relaxed text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800/50 animate-pulse-subtle">
+<p>Do you have any evidence of the noise violation (e.g., audio recordings, video, or previous police reports)?</p>
+</div>
+<span class="text-[10px] text-slate-400 ml-1">Just now</span>
+</div>
+</div>
+<!-- Spacer for fixed bottom elements -->
+<div class="h-48"></div>
+</main>
+<!-- Fixed Interaction Area -->
+<div class="absolute bottom-0 w-full bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent pt-12 pb-6 px-4 z-30 flex flex-col gap-3">
+<!-- Selection Buttons -->
+<div class="flex flex-col gap-2 mb-2">
+<button class="w-full bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-surface-dark-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 py-3.5 px-4 rounded-xl text-sm font-medium transition-all active:scale-[0.98] flex items-center justify-between group shadow-sm">
+<span>Yes, I have evidence</span>
+<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 group-hover:border-primary group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+<span class="material-icons-round text-xs text-primary opacity-0 group-hover:opacity-100">check</span>
+</span>
+</button>
+<button class="w-full bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-surface-dark-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 py-3.5 px-4 rounded-xl text-sm font-medium transition-all active:scale-[0.98] flex items-center justify-between group shadow-sm">
+<span>No, I do not</span>
+<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 group-hover:border-primary group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+<span class="material-icons-round text-xs text-primary opacity-0 group-hover:opacity-100">check</span>
+</span>
+</button>
+<button class="w-full bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-surface-dark-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 py-3.5 px-4 rounded-xl text-sm font-medium transition-all active:scale-[0.98] flex items-center justify-between group shadow-sm">
+<span>I'm not sure</span>
+<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 group-hover:border-primary group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+<span class="material-icons-round text-xs text-primary opacity-0 group-hover:opacity-100">check</span>
+</span>
+</button>
+</div>
+<!-- Manual Input Bar -->
+<div class="relative w-full flex items-center gap-2">
+<div class="flex-1 relative">
+<input class="w-full bg-white dark:bg-surface-dark text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 rounded-full py-3.5 pl-5 pr-12 border border-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none shadow-lg shadow-black/5 text-sm transition-all" placeholder="Type a custom answer..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-xl">mic</span>
+</button>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white p-3.5 rounded-full shadow-lg shadow-primary/30 active:scale-95 transition-transform flex items-center justify-center">
+<span class="material-icons-round text-xl">send</span>
+</button>
+</div>
+<!-- Safe Area Bottom -->
+<div class="h-1 w-full"></div>
+</div>
+</div>
+</body></html>

@@ -650,6 +650,15 @@ renderSendingResults(results, isPaid = true) {
 
     this.optionsContainer.appendChild(container);
 }
+    // New complaint button
+    const newBtn = document.createElement('button');
+    newBtn.className = 'flex items-center justify-center gap-1.5 w-full p-2.5 mt-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg transition-colors text-[11px]';
+    newBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">add</span><span>Новая жалоба</span>';
+    newBtn.addEventListener('click', () => this.restart());
+    container.appendChild(newBtn);
+
+    this.optionsContainer.appendChild(container);
+}
 
     async downloadDocument(format, recipient) {
         try {

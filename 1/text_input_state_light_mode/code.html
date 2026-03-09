@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Text Input State Light Mode</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for chat area */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Mobile notch simulation padding */
+        .safe-top {
+            padding-top: max(1rem, env(safe-area-inset-top));
+        }
+        .safe-bottom {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        /* Glassmorphism effects */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .dark .glass {
+            background: rgba(16, 22, 34, 0.95);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white antialiased h-screen overflow-hidden flex flex-col items-center justify-center">
+<!-- Mobile Container -->
+<div class="relative w-full max-w-md h-full max-h-[900px] bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden flex flex-col">
+<!-- Status Bar Area (Mock) -->
+<div class="w-full h-12 glass flex items-center justify-between px-6 z-20 absolute top-0">
+<span class="text-xs font-semibold dark:text-gray-200">9:41</span>
+<div class="flex gap-1.5">
+<span class="material-icons-round text-sm dark:text-gray-200">signal_cellular_alt</span>
+<span class="material-icons-round text-sm dark:text-gray-200">wifi</span>
+<span class="material-icons-round text-sm dark:text-gray-200">battery_full</span>
+</div>
+</div>
+<!-- Header -->
+<header class="pt-14 pb-4 px-4 glass border-b border-gray-200 dark:border-gray-800 z-10 flex items-center justify-between sticky top-0">
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-round text-gray-600 dark:text-gray-300">arrow_back</span>
+</button>
+<div class="text-center">
+<h1 class="text-base font-semibold text-gray-900 dark:text-white">New Complaint</h1>
+<p class="text-xs text-primary font-medium">Housing Violation</p>
+</div>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-round text-gray-600 dark:text-gray-300">more_vert</span>
+</button>
+</header>
+<!-- Chat Stream -->
+<main class="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-6 pb-20 bg-background-light dark:bg-background-dark">
+<!-- Date Divider -->
+<div class="flex justify-center my-4">
+<span class="bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] px-3 py-1 rounded-full font-medium tracking-wide">TODAY</span>
+</div>
+<!-- Bot Message 1 -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+<span class="material-icons-round text-sm">gavel</span>
+</div>
+<div class="max-w-[75%] space-y-1">
+<div class="bg-white dark:bg-gray-800 p-3.5 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700">
+<p class="text-sm leading-relaxed text-gray-700 dark:text-gray-200">Let's start your complaint. Could you tell me which government agency this is regarding?</p>
+</div>
+<span class="text-[10px] text-gray-400 ml-1">10:23 AM</span>
+</div>
+</div>
+<!-- User Message 1 -->
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[80%] bg-primary text-white p-3.5 rounded-2xl rounded-tr-none shadow-md">
+<p class="text-sm leading-relaxed">It's about the local housing authority ignoring my repair requests for the roof leak.</p>
+</div>
+<div class="flex items-center gap-1 mr-1">
+<span class="text-[10px] text-gray-400">10:24 AM</span>
+<span class="material-icons-round text-[12px] text-primary">done_all</span>
+</div>
+</div>
+<!-- Bot Message 2 (Active Question) -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+<span class="material-icons-round text-sm">smart_toy</span>
+</div>
+<div class="max-w-[85%] space-y-1">
+<div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700">
+<p class="text-sm leading-relaxed text-gray-700 dark:text-gray-200">I understand. Documenting the negligence is crucial.</p>
+<p class="text-sm leading-relaxed text-gray-700 dark:text-gray-200 mt-2 font-medium">Please describe the situation in detail. Include dates of your requests and any specific responses (or lack thereof) you've received.</p>
+</div>
+<span class="text-[10px] text-gray-400 ml-1">10:25 AM</span>
+</div>
+</div>
+<!-- Spacer for keyboard view -->
+<div class="h-32"></div>
+</main>
+<!-- Input Area (Simulating Active State above keyboard) -->
+<div class="w-full bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-30 pb-4"> <!-- Added padding for mock keyboard space if needed, or stick to bottom nav -->
+<!-- Contextual suggestions/Quick Replies (Optional but fits modern AI chat) -->
+<div class="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide border-b border-gray-100 dark:border-gray-800">
+<button class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium border border-primary/20">Sent on Oct 12th</button>
+<button class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium border border-primary/20">No written response</button>
+<button class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium border border-primary/20">Attached photos</button>
+</div>
+<div class="p-3 flex items-end gap-2">
+<button class="p-2 text-gray-400 hover:text-primary transition-colors flex-shrink-0">
+<span class="material-icons-round">add_circle_outline</span>
+</button>
+<div class="flex-1 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center p-1 border-2 border-primary/30 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<textarea autofocus="" class="w-full bg-transparent border-none text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:ring-0 resize-none py-2 px-3 max-h-32" placeholder="Type your description here..." rows="1"></textarea>
+</div>
+<button class="p-2.5 bg-primary hover:bg-blue-600 rounded-xl text-white shadow-lg shadow-primary/30 transition-transform active:scale-95 flex-shrink-0 flex items-center justify-center">
+<span class="material-icons-round text-xl">send</span>
+</button>
+</div>
+<!-- Mock Keyboard Placeholder Area (To imply input state) -->
+<div class="w-full h-[280px] bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+<span class="text-gray-400 dark:text-gray-500 text-sm font-medium animate-pulse">System Keyboard Area</span>
+<div class="mt-4 grid grid-cols-10 gap-1 w-full px-2 max-w-sm opacity-30 pointer-events-none">
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+<div class="h-10 bg-gray-400 rounded"></div>
+</div>
+</div>
+</div>
+<!-- Note: Bottom Navigation is hidden when keyboard is open in most modern iOS apps, 
+             but if we assume the keyboard isn't fully up or user wants nav persistent: -->
+<!-- <nav class="hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 h-20 px-6 flex items-start justify-between pt-3 pb-8 z-20">
+             (Navigation Items Code)
+        </nav> -->
+</div>
+</body></html>

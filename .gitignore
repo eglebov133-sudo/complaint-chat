@@ -28,3 +28,6 @@ Thumbs.db
 
 # Tests cache
 .pytest_cache/
+
+# Credentials (auto-added)
+.credentials.enc

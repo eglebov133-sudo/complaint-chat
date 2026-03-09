@@ -17,7 +17,7 @@ class DialogState:
     
     def __init__(self):
         self.id = str(uuid.uuid4())
-        self.step = "gathering"  # gathering -> contacts -> recipients -> preview
+        self.step = "gathering"  # gathering -> recipients -> preview
         self.history: List[Dict] = []
         self.data: Dict[str, Any] = {}
         self.qa_pairs: List[Dict] = []  # Собранные вопросы-ответы
@@ -147,16 +147,6 @@ class DialogService:
         # Обрабатываем в зависимости от текущего шага
         if current_step == "gathering":
             return self._handle_gathering(state, user_input)
-        elif current_step == "contact_name":
-            return self._handle_contact_name(state, user_input)
-        elif current_step == "contact_address":
-            return self._handle_contact_address(state, user_input)
-        elif current_step == "contact_phone":
-            return self._handle_contact_phone(state, user_input)
-        elif current_step == "contact_email":
-            return self._handle_contact_email(state, user_input)
-        elif current_step == "contacts":
-            return self._handle_contacts(state, user_input)
         elif current_step == "recipients":
             return self._handle_recipients(state, user_input)
         elif current_step == "preview":
@@ -188,15 +178,8 @@ class DialogService:
         
         if llm_response:
             if llm_response.get("ready", False):
-                # LLM решил что информации достаточно - переходим к контактам
-                # Начинаем сбор контактов ПО ОДНОМУ
-                state.step = "contact_name"
-                response = {
-                    "message": "Отлично, я собрал достаточно информации! 📝\n\nТеперь укажите ваши данные для жалобы.\n\n**Как вас зовут?** (ФИО полностью)",
-                    "options": None,
-                    "input_type": "autocomplete_fio",
-                    "step": "contact_name"
-                }
+                # LLM решил что информации достаточно - переходим к выбору получателей
+                return self._transition_to_recipients(state)
             else:
                 # LLM задаёт следующий вопрос
                 question = llm_response.get("question", "Расскажите подробнее о ситуации")
@@ -365,73 +348,14 @@ class DialogService:
                 "step": "gathering"
             }
         
-        # Если прошли достаточно вопросов - переходим к контактам
+        # Если прошли достаточно вопросов - переходим к получателям
         if qa_count >= len(questions):
-            state.step = "contact_name"
-            return {
-                "message": "Спасибо за информацию! 📝\n\nТеперь укажите ваши данные.\n\n**Как вас зовут?** (ФИО полностью)",
-                "options": None,
-                "input_type": "autocomplete_fio",
-                "step": "contact_name"
-            }
+            return self._transition_to_recipients(state)
         
         return questions[min(qa_count, len(questions) - 1)]
     
-    def _handle_contact_name(self, state: DialogState, user_input: str) -> Dict:
-        """Сбор ФИО"""
-        state.data["name"] = user_input.strip()
-        state.step = "contact_address"
-        
-        response = {
-            "message": f"Приятно познакомиться, {user_input.split()[0]}! 👋\n\n**Ваш адрес проживания?** (город, улица, дом, квартира)",
-            "options": None,
-            "input_type": "autocomplete_address",
-            "step": "contact_address"
-        }
-        
-        state.add_message("assistant", response["message"], None, response["input_type"])
-        return response
-    
-    def _handle_contact_address(self, state: DialogState, user_input: str) -> Dict:
-        """Сбор адреса"""
-        state.data["address"] = user_input.strip()
-        state.step = "contact_phone"
-        
-        response = {
-            "message": "**Ваш контактный телефон?**",
-            "options": [
-                {"id": "skip", "text": "Пропустить"}
-            ],
-            "input_type": "options",
-            "step": "contact_phone"
-        }
-        
-        state.add_message("assistant", response["message"], response.get("options"), response["input_type"])
-        return response
-    
-    def _handle_contact_phone(self, state: DialogState, user_input: str) -> Dict:
-        """Сбор телефона"""
-        if user_input.lower() != "пропустить" and user_input != "skip":
-            state.data["phone"] = user_input.strip()
-        state.step = "contact_email"
-        
-        response = {
-            "message": "**Ваш email?** (на него придёт копия жалобы)",
-            "options": [
-                {"id": "skip", "text": "Пропустить"}
-            ],
-            "input_type": "options",
-            "step": "contact_email"
-        }
-        
-        state.add_message("assistant", response["message"], response.get("options"), response["input_type"])
-        return response
-    
-    def _handle_contact_email(self, state: DialogState, user_input: str) -> Dict:
-        """Сбор email и переход к получателям"""
-        if user_input.lower() != "пропустить" and user_input != "skip":
-            state.data["email"] = user_input.strip()
-        
+    def _transition_to_recipients(self, state: DialogState) -> Dict:
+        """Переход к выбору получателей (без сбора персональных данных)"""
         state.step = "recipients"
         
         # LLM анализирует ситуацию и рекомендует получателей
@@ -445,14 +369,12 @@ class DialogService:
         options = []
         
         if llm_recommendations and llm_recommendations.get("recipients"):
-            # Новый формат с причинами для каждого получателя
             for rec_info in llm_recommendations["recipients"]:
                 rec_id = rec_info.get("id")
                 rec = RECIPIENTS.get(rec_id)
                 is_primary = rec_info.get("priority") == "primary"
                 
                 if rec:
-                    # Орган из базы
                     reason = rec_info.get("reason", rec.get("reason", ""))
                     options.append({
                         "id": rec_id,
@@ -462,7 +384,6 @@ class DialogService:
                         "priority": "primary" if is_primary else "secondary"
                     })
                 else:
-                    # Кастомный орган от LLM (не из базы)
                     name = rec_info.get("name", rec_id)
                     reason = rec_info.get("reason", "")
                     options.append({
@@ -471,10 +392,10 @@ class DialogService:
                         "description": reason,
                         "jurisdiction": "",
                         "priority": "primary" if is_primary else "secondary",
-                        "is_custom": True  # Пометка что это кастомный орган
+                        "is_custom": True
                     })
         
-        # Fallback: если LLM не сработал, используем статические рекомендации
+        # Fallback
         if not options:
             category_id = state.data.get("category", "other")
             recommendations = RECIPIENT_RECOMMENDATIONS.get(category_id, {"primary": ["prosecution"], "secondary": []})
@@ -493,70 +414,10 @@ class DialogService:
         
         options.append({"id": "custom", "text": "📧 Другой адрес (ввести вручную)"})
         
-        message = "**Куда отправить жалобу?**\n\n"
-        message += "⭐ — рекомендуемые получатели для вашей ситуации.\n"
-        message += "Прочитайте описания и выберите подходящие:"
+        message = "Отлично, я собрал достаточно информации! 📝\n\n**Куда отправить жалобу?**\n\n⭐ — рекомендуемые получатели для вашей ситуации.\nПрочитайте описания и выберите подходящие:"
         
         response = {
             "message": message,
-            "options": options,
-            "input_type": "multiselect",
-            "step": "recipients"
-        }
-        
-        state.add_message("assistant", response["message"], response.get("options"), response["input_type"])
-        return response
-    
-    def _handle_contacts(self, state: DialogState, user_input: str) -> Dict:
-        """Обработка контактных данных"""
-        
-        # Парсим контактные данные
-        lines = user_input.strip().split('\n')
-        contacts = {}
-        
-        for line in lines:
-            line_lower = line.lower()
-            if 'фио' in line_lower or 'имя' in line_lower:
-                contacts['name'] = line.split(':', 1)[-1].strip() if ':' in line else line.strip()
-            elif 'адрес' in line_lower:
-                contacts['address'] = line.split(':', 1)[-1].strip() if ':' in line else line.strip()
-            elif 'телефон' in line_lower or 'тел' in line_lower:
-                contacts['phone'] = line.split(':', 1)[-1].strip() if ':' in line else line.strip()
-            elif 'email' in line_lower or '@' in line:
-                contacts['email'] = line.split(':', 1)[-1].strip() if ':' in line else line.strip()
-        
-        # Если данные не распознаны, пытаемся угадать
-        if not contacts:
-            text = user_input.strip()
-            if '@' in text:
-                for part in text.split():
-                    if '@' in part:
-                        contacts['email'] = part
-                        break
-            contacts['name'] = text.split('\n')[0] if '\n' in text else text
-        
-        state.data.update(contacts)
-        state.step = "recipients"
-        
-        # Получаем рекомендуемых получателей
-        category_id = state.data.get("category", "other")
-        recommendations = RECIPIENT_RECOMMENDATIONS.get(category_id, {"primary": ["prosecution"], "secondary": []})
-        
-        options = []
-        for rec_id in recommendations["primary"] + recommendations["secondary"]:
-            rec = RECIPIENTS.get(rec_id)
-            if rec:
-                prefix = "⭐ " if rec_id in recommendations["primary"] else ""
-                options.append({
-                    "id": rec_id,
-                    "text": f"{prefix}{rec['name']}",
-                    "description": rec['description']
-                })
-        
-        options.append({"id": "custom", "text": "📧 Другой адрес (ввести вручную)"})
-        
-        response = {
-            "message": "Куда отправить жалобу? Выберите один или несколько получателей:\n\n_(⭐ — рекомендуемые для вашей ситуации)_",
             "options": options,
             "input_type": "multiselect",
             "step": "recipients"
@@ -593,12 +454,12 @@ class DialogService:
         state.data["selected_recipients"] = selected_recipients
         state.step = "preview"
         
-        # Генерируем текст жалобы с учётом всех собранных данных
+        # Генерируем текст жалобы БЕЗ персональных данных (с плейсхолдерами)
         from services.llm_service import llm_service
         
-        # Передаём все Q&A пары для генерации
         context = {
-            **state.data,
+            "category": state.data.get("category", "other"),
+            "category_name": state.data.get("category_name", ""),
             "conversation": state.get_conversation_context(),
             "qa_pairs": state.qa_pairs
         }
@@ -665,54 +526,56 @@ class DialogService:
         """Обработка действий на этапе предпросмотра"""
         
         if user_input == "send":
-            from services.email_service import email_service
+            from data.recipients import RECIPIENTS
+            import urllib.parse
             
             recipients = state.data.get("selected_recipients", [])
-            emails = [r["email"] for r in recipients if r.get("email")]
+            complaint_text = state.data.get("complaint_text", "")
+            category_name = state.data.get("category_name", "Обращение")
             
-            if not emails:
-                response = {
-                    "message": "⚠️ К сожалению, у выбранных получателей нет email для автоматической отправки.\n\nВы можете:\n• Скопировать текст жалобы и отправить через сайты госорганов\n• Добавить свой email получателя",
-                    "options": [
-                        {"id": "copy", "text": "📋 Скопировать текст"},
-                        {"id": "add_email", "text": "📧 Добавить email"},
-                        {"id": "restart", "text": "🔄 Начать заново"}
-                    ],
-                    "input_type": "options",
-                    "step": "preview"
-                }
-            else:
-                result = email_service.send_complaint(
-                    to_emails=emails,
-                    subject=f"Жалоба: {state.data.get('category_name', 'Обращение')}",
-                    complaint_text=state.data.get("complaint_text", ""),
-                    sender_name=state.data.get("name"),
-                    sender_email=state.data.get("email"),
-                    send_copy_to_sender=True
-                )
+            # Build sending results for each recipient
+            results = []
+            for rec in recipients:
+                rec_id = rec.get("id", "")
+                rec_db = RECIPIENTS.get(rec_id, {})
+                rec_name = rec.get("name", rec_db.get("name", rec_id))
+                rec_email = rec.get("email", rec_db.get("email", ""))
+                rec_website = rec.get("website", rec_db.get("website", ""))
                 
-                if result["success"]:
-                    sent_list = ", ".join(result["sent_to"])
-                    response = {
-                        "message": f"✅ **Жалоба успешно отправлена!**\n\nОтправлено на: {sent_list}\n\nСохраните этот диалог для своих записей. Ожидайте ответа в течение 30 дней.\n\n🔗 [Сохранить черновик](/draft/{state.id})",
-                        "options": [
-                            {"id": "restart", "text": "📝 Подать ещё одну жалобу"},
-                            {"id": "done", "text": "👍 Готово"}
-                        ],
-                        "input_type": "options",
-                        "step": "done"
-                    }
-                else:
-                    response = {
-                        "message": f"❌ Ошибка отправки: {result['error']}\n\nПопробуйте позже или скопируйте текст для ручной отправки.",
-                        "options": [
-                            {"id": "retry", "text": "🔄 Попробовать снова"},
-                            {"id": "copy", "text": "📋 Скопировать текст"},
-                            {"id": "restart", "text": "🔄 Начать заново"}
-                        ],
-                        "input_type": "options",
-                        "step": "preview"
-                    }
+                # Build mailto link
+                mailto_link = ""
+                if rec_email:
+                    subject = f"Жалоба: {category_name}"
+                    body = complaint_text[:500] + ("\n\n[Полный текст — см. прикреплённый PDF]" if len(complaint_text) > 500 else "")
+                    mailto_link = f"mailto:{rec_email}?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
+                
+                results.append({
+                    "recipient_id": rec_id,
+                    "recipient_name": rec_name,
+                    "email": rec_email,
+                    "website": rec_website,
+                    "mailto_link": mailto_link,
+                    "address": rec_db.get("address", ""),
+                    "phone": rec_db.get("phone", ""),
+                    "portal_name": rec_db.get("portal_name", ""),
+                    "processing_time": rec_db.get("processing_time", "30 дней"),
+                })
+            
+            state.data["sending_results"] = results
+            state.step = "done"
+            
+            message_parts = ["🎉 **Жалоба готова к отправке!**\n"]
+            message_parts.append(f"Получателей: **{len(results)}**\n")
+            message_parts.append("---\n")
+            message_parts.append("Выберите удобный способ подачи для каждого органа ⬇️")
+            
+            response = {
+                "message": "".join(message_parts),
+                "results": results,
+                "input_type": "sending_results",
+                "step": "done",
+                "complaint_text": complaint_text
+            }
         
         elif user_input == "edit":
             response = {

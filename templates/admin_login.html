@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Вход</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #0f1117;
+            color: #fff;
+            font-family: system-ui, sans-serif
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-xs">
+        <div class="bg-[#181b25] rounded-lg p-6 border border-[#2a3347]">
+            <h2 class="text-sm font-medium text-gray-400 mb-4 text-center">Авторизация</h2>
+            <input id="pwd" type="password" placeholder="Пароль" autofocus
+                class="w-full bg-[#232a3a] border border-[#2a3347] rounded px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 mb-3" />
+            <div id="err" class="text-red-400 text-xs mb-2 hidden"></div>
+            <button onclick="doLogin()"
+                class="w-full bg-[#3d5a80] hover:bg-[#2c4a6e] text-white text-sm py-2 rounded transition-colors">
+                Войти
+            </button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('pwd').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+        async function doLogin() {
+            const pwd = document.getElementById('pwd').value;
+            const res = await fetch('/api/admin/login', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            });
+            if (res.ok) { window.location.href = '/admin'; }
+            else { document.getElementById('err').textContent = 'Неверный пароль'; document.getElementById('err').classList.remove('hidden'); }
+        }
+    </script>
+</body>
+
+</html>

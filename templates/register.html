@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<script>
+    (function () {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+</script>
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Регистрация — Клик и Порядок</title>
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3d5a80",
+                        "primary-dark": "#2c4a6e",
+                        "primary-light": "#5b7faa",
+                        "background-dark": "#0f1117",
+                        "surface-dark": "#181b25",
+                        "surface-lighter": "#1e2230",
+                        "surface-border": "#2a3347",
+                    },
+                    fontFamily: {
+                        "display": ["IBM Plex Sans", "sans-serif"]
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+            (function (m, e, t, r, i, k, a) {
+                m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+                m[i].l = 1 * new Date();
+                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+                k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+            })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106967638', 'ym');
+        ym(106967638, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
+    </script>
+    <noscript>
+        <div><img src="https://mc.yandex.ru/watch/106967638" style="position:absolute; left:-9999px;" alt="" /></div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+</head>
+
+<body class="bg-background-dark font-display text-white min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center gap-2">
+                <span class="material-icons-round text-primary text-3xl">balance</span>
+                <span class="text-xl font-bold tracking-tight">Клик и Порядок</span>
+            </a>
+            <p class="text-sm text-slate-400 mt-1">Создание аккаунта</p>
+        </div>
+
+        <!-- Error message -->
+        {% if error %}
+        <div
+            class="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+            <span class="material-icons-round text-base">error</span>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Register Form -->
+        <form method="POST" action="/api/register"
+            class="bg-surface-dark border border-surface-border rounded-lg p-6 space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-slate-300 mb-1.5">Имя</label>
+                <input type="text" id="name" name="name" required autocomplete="name"
+                    class="w-full bg-surface-lighter border border-surface-border rounded-md px-3 py-2.5 text-white text-sm placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+                    placeholder="Иван" value="{{ name or '' }}">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email"
+                    class="w-full bg-surface-lighter border border-surface-border rounded-md px-3 py-2.5 text-white text-sm placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+                    placeholder="mail@example.com" value="{{ email or '' }}">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-300 mb-1.5">Пароль</label>
+                <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password"
+                    class="w-full bg-surface-lighter border border-surface-border rounded-md px-3 py-2.5 text-white text-sm placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+                    placeholder="Минимум 6 символов">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2.5 px-4 rounded-md transition-colors text-sm">
+                Создать аккаунт
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-slate-400 mt-4">
+            Уже есть аккаунт? <a href="/login" class="text-primary hover:underline">Войти</a>
+        </p>
+
+        <p class="text-center text-xs text-slate-500 mt-6">
+            <a href="/" class="hover:text-slate-300 transition">← Вернуться к чату</a>
+        </p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<script>
+    (function () {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+</script>
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Тарифы — Клик и Порядок</title>
+    <meta name="description" content="Тарифы на составление и отправку жалоб в государственные органы" />
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3d5a80",
+                        "primary-dark": "#2c4a6e",
+                        "primary-light": "#5b7faa",
+                        "background-dark": "#0f1117",
+                        "surface-dark": "#181b25",
+                        "surface-lighter": "#1e2230",
+                        "surface-border": "#2a3347",
+                        "text-muted": "#8896b3",
+                    },
+                    fontFamily: {
+                        "display": ["IBM Plex Sans", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'glow': '0 0 12px -4px rgba(61, 90, 128, 0.25)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .tariff-glow {
+            box-shadow: 0 0 20px -4px rgba(61, 90, 128, 0.3);
+        }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+            (function (m, e, t, r, i, k, a) {
+                m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+                m[i].l = 1 * new Date();
+                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+                k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+            })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106967638', 'ym');
+        ym(106967638, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
+    </script>
+    <noscript>
+        <div><img src="https://mc.yandex.ru/watch/106967638" style="position:absolute; left:-9999px;" alt="" /></div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+</head>
+
+<body class="bg-background-dark font-display text-white min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-surface-border bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <span class="material-icons-round text-primary text-2xl">balance</span>
+                <span class="font-bold text-base tracking-tight">Клик и Порядок</span>
+            </a>
+            <div class="flex items-center gap-3">
+                {% if user_email %}
+                <a href="/account" class="text-sm text-slate-400 hover:text-white transition flex items-center gap-1">
+                    <span class="material-icons-round text-base">person</span>
+                    Кабинет
+                </a>
+                {% else %}
+                <a href="/login" class="text-sm text-slate-400 hover:text-white transition">Войти</a>
+                <a href="/register"
+                    class="text-sm bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-md transition-colors">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <!-- Title -->
+        <div class="text-center mb-10">
+            <h1 class="text-2xl font-bold mb-2">Тарифы</h1>
+            <p class="text-slate-400 text-sm max-w-md mx-auto">Жалоба, контакты и рекомендации — бесплатно. Оплата
+                только за готовый PDF и расширенные инструменты.</p>
+        </div>
+
+        <!-- Tariff Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <!-- Free tier -->
+            <div class="relative bg-surface-dark border border-surface-border rounded-lg p-6 flex flex-col">
+                <h3 class="font-semibold text-base mb-1">Бесплатный</h3>
+                <p class="text-xs text-slate-400 mb-4">Полная генерация жалобы и контакты</p>
+
+                <div class="flex items-baseline gap-1 mb-5">
+                    <span class="text-3xl font-bold text-primary">0</span>
+                    <span class="text-sm text-slate-400">₽</span>
+                </div>
+
+                <ul class="space-y-2 mb-6 flex-1">
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Генерация текста жалобы
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Ссылки на законы и статьи
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Список адресатов (инстанций)
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Адреса и телефоны инстанций
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Режим работы приёмных
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Рекомендации по подаче
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        Сроки рассмотрения обращений
+                    </li>
+                </ul>
+
+                <div
+                    class="w-full py-2.5 rounded-md font-medium text-sm text-center bg-surface-lighter text-slate-500 border border-surface-border">
+                    Текущий план
+                </div>
+            </div>
+
+            <!-- Paid tiers -->
+            {% for tariff in tariffs %}
+            <div
+                class="relative bg-surface-dark border rounded-lg p-6 flex flex-col {% if tariff.popular %}border-primary tariff-glow{% else %}border-surface-border{% endif %}">
+                {% if tariff.popular %}
+                <div
+                    class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Популярный
+                </div>
+                {% endif %}
+
+                <h3 class="font-semibold text-base mb-1">{{ tariff.name }}</h3>
+                <p class="text-xs text-slate-400 mb-4">{{ tariff.description }}</p>
+
+                <div class="flex items-baseline gap-1 mb-5">
+                    <span class="text-3xl font-bold text-primary">{{ tariff.price }}</span>
+                    <span class="text-sm text-slate-400">₽{% if tariff.period %}/{{ tariff.period }}{% endif %}</span>
+                </div>
+
+                <ul class="space-y-2 mb-6 flex-1">
+                    {% for feature in tariff.features %}
+                    <li class="flex items-center gap-2 text-sm text-slate-300">
+                        <span class="material-icons-round text-primary text-base">check</span>
+                        {{ feature }}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <button onclick="selectTariff('{{ tariff.id }}')"
+                    class="w-full py-2.5 rounded-md font-medium text-sm transition-colors {% if tariff.popular %}bg-primary hover:bg-primary-dark text-white{% else %}bg-surface-lighter hover:bg-primary/20 text-slate-300 hover:text-white border border-surface-border{% endif %}">
+                    Выбрать
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Trust section -->
+        <div class="flex flex-wrap items-center justify-center gap-6 mt-10 text-xs text-slate-500">
+            <div class="flex items-center gap-1.5">
+                <span class="material-icons-round text-sm">verified_user</span>
+                Безопасная оплата ЮКасса
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="material-icons-round text-sm">lock</span>
+                Шифрование данных
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="material-icons-round text-sm">support_agent</span>
+                Поддержка 24/7
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="max-w-xl mx-auto mt-12">
+            <h2 class="text-lg font-semibold mb-4 text-center">Частые вопросы</h2>
+            <div class="space-y-3">
+                <details class="bg-surface-dark border border-surface-border rounded-lg group">
+                    <summary
+                        class="p-4 cursor-pointer text-sm font-medium flex items-center justify-between hover:text-primary transition">
+                        Что я получаю бесплатно?
+                        <span
+                            class="material-icons-round text-base text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <div class="px-4 pb-4 text-sm text-slate-400">
+                        Бесплатно: генерация полного текста жалобы, ссылки на статьи законов, список адресатов с
+                        адресами, телефонами, email, режимом работы приёмных и сроками рассмотрения. Это уже достаточно,
+                        чтобы самостоятельно подать жалобу.
+                    </div>
+                </details>
+                <details class="bg-surface-dark border border-surface-border rounded-lg group">
+                    <summary
+                        class="p-4 cursor-pointer text-sm font-medium flex items-center justify-between hover:text-primary transition">
+                        Зачем тогда платный тариф?
+                        <span
+                            class="material-icons-round text-base text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <div class="px-4 pb-4 text-sm text-slate-400">
+                        Стандартный тариф (290 ₽) — это готовый к печати PDF, прямые ссылки на порталы электронных
+                        приёмных с инструкциями по подаче, AI-проверка актуальности контактов и шаблон сопроводительного
+                        письма. Экономит время на оформление и подачу.
+                    </div>
+                </details>
+                <details class="bg-surface-dark border border-surface-border rounded-lg group">
+                    <summary
+                        class="p-4 cursor-pointer text-sm font-medium flex items-center justify-between hover:text-primary transition">
+                        Можно ли вернуть деньги?
+                        <span
+                            class="material-icons-round text-base text-slate-500 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <div class="px-4 pb-4 text-sm text-slate-400">
+                        Если жалоба не была скачана — возврат в течение 24 часов. Напишите в поддержку.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-surface-border mt-16 py-6">
+        <div class="max-w-4xl mx-auto px-4 text-center text-xs text-slate-500">
+            © 2025–2026 Клик и Порядок · <a href="/" class="hover:text-primary">Главная</a>
+        </div>
+    </footer>
+
+    <script>
+        async function selectTariff(tariffId) {
+            {% if not user_email %}
+            // Not logged in — redirect to login
+            window.location.href = '/login?next=/tariffs';
+            return;
+            {% endif %}
+
+            try {
+                const response = await fetch('/api/pay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tariff_id: tariffId }),
+                });
+                const data = await response.json();
+                if (data.confirmation_url) {
+                    window.location.href = data.confirmation_url;
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            } catch (e) {
+                alert('Ошибка создания платежа');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <script>
-    // Initialize theme before render to prevent flash
     (function () {
         const theme = localStorage.getItem('theme') || 'dark';
         if (theme === 'dark') document.documentElement.classList.add('dark');
@@ -11,15 +10,18 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Complaint AI - Помощник по жалобам</title>
+    <title>Клик и Порядок</title>
+    <meta name="description"
+        content="Бесплатный AI-помощник для составления юридически грамотных жалоб в государственные органы." />
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
 
     <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
 
@@ -33,26 +35,36 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#135bec",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#101622",
-                        "surface-dark": "#192233",
-                        "element-dark": "#232f48",
-                        "surface-border": "#324467",
-                        "text-muted": "#92a4c9",
+                        "primary": "#3d5a80",
+                        "primary-dark": "#2c4a6e",
+                        "primary-light": "#5b7faa",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1117",
+                        "surface-dark": "#181b25",
+                        "surface-lighter": "#1e2230",
+                        "element-dark": "#232a3a",
+                        "surface-border": "#2a3347",
+                        "text-muted": "#8896b3",
                     },
                     fontFamily: {
-                        "display": ["Public Sans", "sans-serif"]
+                        "display": ["IBM Plex Sans", "sans-serif"]
                     },
                     borderRadius: {
-                        "DEFAULT": "0.25rem",
+                        "DEFAULT": "0.1875rem",
+                        "sm": "0.25rem",
+                        "md": "0.375rem",
                         "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "2xl": "1rem",
+                        "xl": "0.5rem",
+                        "2xl": "0.5rem",
                         "full": "9999px"
                     },
                     boxShadow: {
-                        'glow': '0 0 20px -5px rgba(19, 91, 236, 0.3)',
+                        'glow': '0 0 12px -4px rgba(61, 90, 128, 0.25)',
+                        'soft': '0 1px 4px rgba(0, 0, 0, 0.05)',
+                        'card': '0 1px 2px rgba(0,0,0,0.04)',
+                    },
+                    maxWidth: {
+                        'chat': '560px',
                     }
                 },
             },
@@ -64,6 +76,32 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 99px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #1e2230;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #2a3347;
+        }
+
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -73,6 +111,7 @@
             scrollbar-width: none;
         }
 
+        /* Animations */
         .typing-dot {
             animation: typingBounce 1.4s infinite ease-in-out;
         }
@@ -94,8 +133,8 @@
             0%,
             80%,
             100% {
-                transform: scale(0.8);
-                opacity: 0.5;
+                transform: scale(0.7);
+                opacity: 0.4;
             }
 
             40% {
@@ -107,7 +146,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(8px);
             }
 
             to {
@@ -117,47 +156,46 @@
         }
 
         .animate-fade-in {
-            animation: fadeIn 0.3s ease-out;
+            animation: fadeIn 0.25s ease-out;
         }
 
-        /* Autocomplete dropdown - appears ABOVE input */
+        /* Autocomplete dropdown */
         .autocomplete-dropdown {
             position: absolute;
             bottom: 100%;
             left: 0;
             right: 0;
             background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.1);
-            max-height: 280px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+            max-height: 240px;
             overflow-y: auto;
             z-index: 1000;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .dark .autocomplete-dropdown {
-            background: #232f48;
-            border: 1px solid #324467;
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+            background: #1e2230;
+            border: 1px solid #2a3347;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
         }
 
-        /* Mandatory indicator for autocomplete */
         .autocomplete-required {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 8px 12px;
-            background: rgba(19, 91, 236, 0.15);
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: #92a4c9;
+            background: rgba(79, 110, 247, 0.1);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #8896b3;
         }
 
         .autocomplete-required .material-symbols-outlined {
-            color: #135bec;
-            font-size: 18px;
+            color: #4f6ef7;
+            font-size: 16px;
         }
 
         .autocomplete-dropdown.hidden {
@@ -165,14 +203,14 @@
         }
 
         .autocomplete-item {
-            padding: 12px 16px;
+            padding: 10px 14px;
             cursor: pointer;
-            border-bottom: 1px solid #e2e8f0;
-            transition: background 0.15s ease;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.12s ease;
         }
 
         .dark .autocomplete-item {
-            border-bottom-color: #324467;
+            border-bottom-color: #2a3347;
         }
 
         .autocomplete-item:last-child {
@@ -181,18 +219,19 @@
 
         .autocomplete-item:hover,
         .autocomplete-item.selected {
-            background: rgba(19, 91, 236, 0.1);
+            background: rgba(79, 110, 247, 0.08);
         }
 
         .dark .autocomplete-item:hover,
         .dark .autocomplete-item.selected {
-            background: rgba(19, 91, 236, 0.15);
+            background: rgba(79, 110, 247, 0.12);
         }
 
         .ac-company-name {
             font-weight: 500;
             color: #1e293b;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            font-size: 13px;
         }
 
         .dark .ac-company-name {
@@ -202,87 +241,154 @@
         .ac-company-details {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            font-size: 0.75rem;
+            gap: 6px;
+            font-size: 0.7rem;
             color: #64748b;
         }
 
         .dark .ac-company-details {
-            color: #92a4c9;
+            color: #8896b3;
         }
 
         .ac-inn {
-            background: rgba(19, 91, 236, 0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
+            background: rgba(79, 110, 247, 0.15);
+            padding: 1px 5px;
+            border-radius: 3px;
             font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* Subtle background pattern */
+        .chat-bg {
+            background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.02) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .dark .chat-bg {
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.015) 1px, transparent 0);
         }
     </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+            (function (m, e, t, r, i, k, a) {
+                m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+                m[i].l = 1 * new Date();
+                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+                k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+            })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106967638', 'ym');
+        ym(106967638, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
+    </script>
+    <noscript>
+        <div><img src="https://mc.yandex.ru/watch/106967638" style="position:absolute; left:-9999px;" alt="" /></div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
 </head>
 
 <body
-    class="bg-background-light dark:bg-background-dark font-display h-screen flex flex-col overflow-hidden text-slate-900 dark:text-white transition-colors duration-200">
+    class="bg-background-light dark:bg-background-dark font-display h-screen flex flex-col overflow-hidden text-slate-900 dark:text-white transition-colors duration-200 antialiased selection:bg-primary selection:text-white text-[14px]">
 
     <!-- Top App Bar -->
-    <header class="flex-none bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800/50 z-20">
-        <div class="flex items-center justify-between px-4 py-3">
-            <button id="back-btn"
-                class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-white transition-colors hidden">
-                <span class="material-symbols-outlined">arrow_back_ios_new</span>
-            </button>
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined text-[20px]">gavel</span>
+    <header class="flex-none bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-white/[0.06] z-20">
+        <div class="max-w-chat mx-auto flex items-center justify-between px-3 sm:px-4 h-12 sm:h-14">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 min-w-0">
+                <div
+                    class="w-8 h-8 rounded-md bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-sm shrink-0">
+                    <span class="material-icons-round text-white text-lg">gavel</span>
                 </div>
-                <h1 class="text-lg font-bold tracking-tight">Complaint AI</h1>
-            </div>
-            <div class="flex items-center gap-1">
-                <button id="theme-toggle-btn"
-                    class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-white transition-colors"
-                    title="Переключить тему">
-                    <span class="material-symbols-outlined text-[20px] dark:hidden">dark_mode</span>
-                    <span class="material-symbols-outlined text-[20px] hidden dark:inline">light_mode</span>
+                <div class="min-w-0">
+                    <h1 class="font-bold text-sm leading-tight tracking-tight truncate">Клик и Порядок</h1>
+
+                </div>
+            </a>
+            <!-- Nav -->
+            <nav class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                <button id="back-btn"
+                    class="hidden items-center p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                    title="Назад">
+                    <span class="material-icons-round text-[20px]">arrow_back</span>
                 </button>
                 <button id="restart-btn"
-                    class="text-primary font-semibold text-sm px-2 py-1 rounded-lg hover:bg-primary/10 transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">refresh</span>
+                    class="p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                    title="Начать заново">
+                    <span class="material-icons-round text-[20px]">restart_alt</span>
                 </button>
-            </div>
+                {% if session.get('user_email') %}
+                <button id="history-btn" onclick="window.chatApp && chatApp.openHistory()"
+                    class="flex items-center gap-1 p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                    title="История жалоб">
+                    <span class="material-icons-round text-[20px]">history</span>
+                    <span class="text-xs font-medium hidden sm:inline">История</span>
+                </button>
+                {% endif %}
+                <a href="/tariffs"
+                    class="flex items-center gap-1 p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                    title="Тарифы">
+                    <span class="material-icons-round text-[20px]">credit_card</span>
+                    <span class="text-xs font-medium hidden sm:inline">Тарифы</span>
+                </a>
+                <div id="user-header-area">
+                    {% if session.get('user_email') %}
+                    <a href="/account"
+                        class="p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                        title="Личный кабинет">
+                        <span class="material-icons-round text-[20px]">person</span>
+                    </a>
+                    {% else %}
+                    <a href="/account"
+                        class="p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                        title="Войти">
+                        <span class="material-icons-round text-[20px]">person_outline</span>
+                    </a>
+                    {% endif %}
+                </div>
+                <button id="theme-toggle-btn"
+                    class="p-2 rounded-md text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                    title="Тема">
+                    <span class="material-icons-round text-[18px] dark:hidden">dark_mode</span>
+                    <span class="material-icons-round text-[18px] hidden dark:inline">light_mode</span>
+                </button>
+            </nav>
         </div>
 
         <!-- Progress Bar -->
-        <div id="progress-container" class="px-4 pb-4 hidden">
-            <div class="flex justify-between items-center mb-2 px-1">
-                <span id="progress-step" class="text-xs font-semibold text-primary tracking-wide">Шаг 1</span>
+        <div id="progress-container" class="px-4 pb-2.5 hidden max-w-chat mx-auto">
+            <div class="flex justify-between items-center mb-1.5 px-0.5">
+                <span id="progress-step" class="text-[10px] font-semibold text-primary tracking-wide uppercase">Шаг
+                    1</span>
                 <span id="progress-label"
-                    class="text-xs font-medium text-slate-500 dark:text-text-muted">Категория</span>
+                    class="text-[10px] font-medium text-slate-400 dark:text-text-muted">Категория</span>
             </div>
-            <div class="h-1.5 w-full bg-slate-200 dark:bg-element-dark rounded-full overflow-hidden">
-                <div id="progress-bar"
-                    class="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(19,91,236,0.5)] transition-all duration-300"
-                    style="width: 10%"></div>
+            <div class="h-0.5 w-full bg-slate-100 dark:bg-white/5 overflow-hidden">
+                <div id="progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 10%"></div>
             </div>
         </div>
     </header>
 
-    <!-- Chat Stream (Main Content) -->
-    <main id="chat-container" class="flex-1 overflow-y-auto p-4 no-scrollbar flex flex-col gap-4">
-        <div id="chat-messages" class="flex flex-col gap-4">
-            <!-- Messages will be inserted here -->
-        </div>
-
-        <!-- Typing Indicator -->
-        <div id="typing-indicator" class="flex items-end gap-3 max-w-[90%] hidden animate-fade-in">
-            <div
-                class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-400 shrink-0 flex items-center justify-center">
-                <span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>
+    <!-- Chat Stream -->
+    <main id="chat-container" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+        <div class="max-w-chat mx-auto w-full flex flex-col gap-3">
+            <!-- Date Divider -->
+            <div class="flex justify-center">
+                <span
+                    class="text-[10px] font-medium text-slate-400 dark:text-slate-600 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded">Сегодня</span>
             </div>
-            <div
-                class="bg-white dark:bg-element-dark p-4 rounded-2xl rounded-bl-none shadow-sm dark:shadow-none border border-slate-100 dark:border-transparent">
-                <div class="flex gap-1">
-                    <span class="typing-dot w-2 h-2 bg-text-muted rounded-full"></span>
-                    <span class="typing-dot w-2 h-2 bg-text-muted rounded-full"></span>
-                    <span class="typing-dot w-2 h-2 bg-text-muted rounded-full"></span>
+            <div id="chat-messages" class="flex flex-col gap-3">
+                <!-- Messages will be inserted here -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="flex items-start gap-2.5 max-w-[85%] hidden animate-fade-in">
+                <div class="w-7 h-7 rounded-md bg-primary shrink-0 flex items-center justify-center">
+                    <span class="material-icons-round text-white text-xs">balance</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-lighter px-3.5 py-2.5 rounded-lg shadow-soft border border-slate-200 dark:border-white/[0.06]">
+                    <div class="flex gap-1">
+                        <span class="typing-dot w-1.5 h-1.5 bg-slate-300 dark:bg-text-muted rounded-full"></span>
+                        <span class="typing-dot w-1.5 h-1.5 bg-slate-300 dark:bg-text-muted rounded-full"></span>
+                        <span class="typing-dot w-1.5 h-1.5 bg-slate-300 dark:bg-text-muted rounded-full"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -290,35 +396,61 @@
 
     <!-- Options Container -->
     <div id="options-container" class="flex-none px-4 pb-2 hidden">
-        <div class="flex flex-col gap-3 animate-fade-in">
+        <div class="max-w-chat mx-auto flex flex-col gap-2 animate-fade-in">
             <!-- Options will be inserted here -->
         </div>
     </div>
 
     <!-- Input Area -->
     <footer id="input-area"
-        class="flex-none p-4 pb-6 bg-white dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800/50">
-        <div class="flex items-end gap-2 relative">
+        class="flex-none bg-white dark:bg-surface-dark border-t border-slate-200 dark:border-white/[0.06] p-3 z-20">
+        <div class="max-w-chat mx-auto">
             <div
-                class="flex-1 bg-slate-100 dark:bg-element-dark rounded-[24px] flex items-center p-1 pl-4 border border-transparent focus-within:border-primary/50 focus-within:bg-white dark:focus-within:bg-element-dark transition-all relative">
-                <textarea id="message-input"
-                    class="w-full bg-transparent border-none text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-text-muted focus:ring-0 p-2 text-base resize-none"
-                    placeholder="Введите сообщение..." rows="1"></textarea>
+                class="relative flex items-end gap-1.5 bg-slate-50 dark:bg-surface-lighter rounded-lg border border-slate-200 dark:border-white/10 p-1.5 transition-shadow focus-within:shadow-glow focus-within:border-primary/30">
+                <!-- Attachment Button -->
                 <button
-                    class="p-2 mr-1 text-slate-400 hover:text-primary dark:hover:text-white transition-colors rounded-full flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[22px]">attach_file</span>
+                    class="p-2 text-slate-400 hover:text-primary dark:hover:text-primary transition-colors rounded-md hover:bg-white dark:hover:bg-white/5 self-end">
+                    <span class="material-icons-round text-[20px]">attach_file</span>
+                </button>
+                <!-- Text Area -->
+                <textarea id="message-input"
+                    class="w-full bg-transparent border-none text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:ring-0 py-2 text-[13.5px] resize-none leading-relaxed max-h-28"
+                    placeholder="Опишите вашу ситуацию..." rows="1" style="min-height: 40px;"></textarea>
+                <!-- Send Button -->
+                <button id="send-btn"
+                    class="p-2 bg-primary hover:bg-primary-dark text-white rounded-md transition-all transform active:scale-95 flex items-center justify-center self-end disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span class="material-icons-round text-[20px]">send</span>
                 </button>
             </div>
-            <button id="send-btn"
-                class="h-[48px] w-[48px] rounded-full bg-primary hover:bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-glow transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                <span class="material-symbols-outlined text-[22px] translate-x-[2px] -translate-y-[1px]">send</span>
-            </button>
+            <div id="char-count" class="text-[10px] text-slate-300 text-right mt-0.5 hidden">0 / 2000</div>
+            <p class="text-center text-[10px] text-slate-300 dark:text-slate-700 mt-2 font-medium">
+                AI может допускать ошибки. Проверяйте важную информацию.
+            </p>
         </div>
-        <div id="char-count" class="text-xs text-slate-400 text-right mt-1 hidden">0 / 2000</div>
     </footer>
 
+    <!-- Legal Footer -->
+    <div class="flex-none bg-slate-50 dark:bg-surface-dark border-t border-slate-100 dark:border-white/5 py-2.5 px-4">
+        <div class="max-w-chat mx-auto text-center relative">
+            <p class="text-[10px] text-slate-400 dark:text-slate-600 leading-relaxed">
+                ИП Глебова Юлия Сергеевна &ensp;·&ensp; ИНН 862002268649 &ensp;·&ensp; ОГРНИП 324450000024703
+            </p>
+            <p class="text-[10px] text-slate-300 dark:text-slate-700 mt-0.5">
+                <a href="tel:+79822880268" class="hover:text-primary transition-colors">+7 (982) 288-02-68</a>
+                &ensp;·&ensp;
+                <a href="mailto:eglebov133@gmail.com"
+                    class="hover:text-primary transition-colors">eglebov133@gmail.com</a>
+                &ensp;·&ensp; г. Челябинск
+            </p>
+            <a href="/admin"
+                class="absolute right-0 bottom-0 w-3 h-3 opacity-[0.03] hover:opacity-20 transition-opacity" title="">
+                <span class="material-icons-round text-[10px]">settings</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-24 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed bottom-20 right-4 z-50 flex flex-col gap-2"></div>
 
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
     <script>
@@ -334,7 +466,26 @@
                 localStorage.setItem('theme', 'dark');
             }
         });
+
+        // Mobile restart button
+        const mobileRestart = document.getElementById('restart-btn-mobile');
+        if (mobileRestart) {
+            mobileRestart.addEventListener('click', function () {
+                document.getElementById('restart-btn').click();
+            });
+        }
     </script>
+
+    <!-- Epigraph -->
+    <footer class="flex-none py-2 text-center border-t border-slate-200/50 dark:border-white/[0.03]">
+        <p class="text-[10px] italic text-slate-400/60 dark:text-slate-600 tracking-wide">
+            «Просите, и дано будет вам; ищите, и найдёте; стучите, и отворят вам» <span class="not-italic">— Мф.
+                7:7</span>
+        </p>
+        <p class="text-[10px] text-slate-400/40 dark:text-slate-700 mt-0.5">
+            <a href="mailto:support@stuchim.ru" class="hover:text-primary transition">support@stuchim.ru</a>
+        </p>
+    </footer>
 </body>
 
 </html>

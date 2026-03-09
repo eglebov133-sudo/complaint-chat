@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Complaint AI - Main Chat</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-hover": "#0e4ac4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2234",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", 
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for dark mode chat */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200 h-screen flex flex-col overflow-hidden transition-colors duration-300">
+<!-- Header -->
+<header class="flex-none bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800/60 px-6 py-4 z-20 shadow-sm">
+<div class="max-w-4xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-rounded text-primary text-2xl">balance</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white">Complaint AI</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Юридический помощник</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<!-- Theme Toggle (Visual only, enforced dark mode by system but present in UI) -->
+<button class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors" title="Переключить тему">
+<span class="material-symbols-rounded text-xl">light_mode</span>
+</button>
+<!-- Restart Chat Button -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors border border-transparent dark:border-slate-700">
+<span class="material-symbols-rounded text-lg">restart_alt</span>
+<span class="hidden sm:inline">Новый чат</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Chat Area -->
+<main class="flex-1 flex flex-col relative max-w-4xl mx-auto w-full">
+<!-- Chat Stream -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-surface-dark px-3 py-1 rounded-full">Сегодня</span>
+</div>
+<!-- Bot Message Group -->
+<div class="flex gap-4 max-w-3xl">
+<div class="flex-none">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-rounded text-white text-xl">smart_toy</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-baseline gap-2">
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Complaint AI</span>
+<span class="text-xs text-slate-400">10:42</span>
+</div>
+<!-- Message Bubble -->
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-800 shadow-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+<p>Здравствуйте! Я ваш ИИ-юрист. Я помогу вам грамотно составить жалобу в государственные органы РФ.</p>
+<p class="mt-3">Вы можете описать вашу ситуацию своими словами в поле ввода ниже, или выбрать одну из популярных категорий для быстрого старта:</p>
+</div>
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+<button class="group flex flex-col items-start gap-3 p-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700/60 hover:border-primary/50 dark:hover:border-primary/50 hover:shadow-md transition-all text-left">
+<div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-rounded">shopping_bag</span>
+</div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">Защита прав потребителей</span>
+</button>
+<button class="group flex flex-col items-start gap-3 p-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700/60 hover:border-primary/50 dark:hover:border-primary/50 hover:shadow-md transition-all text-left">
+<div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-rounded">home_work</span>
+</div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">Жилищные вопросы</span>
+</button>
+<button class="group flex flex-col items-start gap-3 p-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700/60 hover:border-primary/50 dark:hover:border-primary/50 hover:shadow-md transition-all text-left">
+<div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-rounded">medical_services</span>
+</div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">Медицинские услуги</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Example User Message (Hidden by default or could be shown as history) -->
+<!-- 
+            <div class="flex gap-4 max-w-3xl ml-auto flex-row-reverse">
+                <div class="flex-none">
+                     <img src="https://ui-avatars.com/api/?name=User&background=135bec&color=fff" data-alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-slate-200 dark:border-slate-700">
+                </div>
+                <div class="flex flex-col gap-2 items-end">
+                    <div class="flex items-baseline gap-2 flex-row-reverse">
+                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Вы</span>
+                        <span class="text-xs text-slate-400">10:45</span>
+                    </div>
+                    <div class="bg-primary text-white p-5 rounded-2xl rounded-tr-none shadow-md leading-relaxed">
+                        <p>У меня проблема с управляющей компанией, они не убирают снег во дворе уже неделю.</p>
+                    </div>
+                </div>
+            </div>
+            -->
+<!-- Spacer for bottom input -->
+<div class="h-24"></div>
+</div>
+<!-- Input Area (Sticky Bottom) -->
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent pt-12">
+<div class="relative bg-surface-light dark:bg-surface-dark rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 ring-4 ring-slate-100 dark:ring-slate-800/50 flex items-end gap-2 p-2">
+<!-- Attachment Button -->
+<button class="p-3 text-slate-400 hover:text-primary dark:text-slate-500 dark:hover:text-primary transition-colors rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 flex-none h-[52px] w-[52px] flex items-center justify-center">
+<span class="material-symbols-rounded text-2xl">attach_file</span>
+</button>
+<!-- Text Area -->
+<textarea class="w-full bg-transparent border-0 focus:ring-0 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none py-3.5 max-h-32 min-h-[52px]" placeholder="Опишите проблему или задайте вопрос..." rows="1"></textarea>
+<!-- Send Button -->
+<button class="bg-primary hover:bg-primary-hover text-white rounded-xl h-[52px] w-[52px] flex items-center justify-center shadow-lg shadow-primary/30 transition-all flex-none group">
+<span class="material-symbols-rounded text-xl group-hover:translate-x-0.5 transition-transform">send</span>
+</button>
+</div>
+<div class="text-center mt-3">
+<p class="text-[10px] text-slate-400 dark:text-slate-600">Complaint AI может допускать ошибки. Проверяйте важную информацию.</p>
+</div>
+</div>
+</main>
+</body></html>

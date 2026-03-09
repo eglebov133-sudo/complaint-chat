@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Complaint Preview - Complaint AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for document preview */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+        
+        /* Simulating A4 paper proportions/shadow */
+        .document-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        .dark .document-shadow {
+             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-100 h-screen flex flex-col overflow-hidden antialiased selection:bg-primary/30 selection:text-primary">
+<!-- App Header -->
+<header class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-icons">gavel</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-tight">Complaint AI</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400">Юридический помощник</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-primary transition-colors rounded-full hover:bg-primary/10">
+<span class="material-icons">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm5PJZAgwkz-XZKCF8sC6u5Jud_y-vETijABx22siKIwEzjQ2HJXOdor7uimgu3x2dajRsEKQa5scSfCARhMGM89ZAa-p06ShcRnUtDXLPLsWIyoFw49ePaTNg7m8DK6IvbUCksvswlbQXn3_0YlAfmx0hHI4Wz7Oc2rISpu70QnArsn5ePTJo3NXx_8kXgaB1d_RaWIqCwA6efFbIlZg-eTT7LOgzw-8F9M5TtQHdJ7WG3n6wrhWGswRzBeKtHAaZLfZ0hiHte0Q"/>
+</div>
+</div>
+</header>
+<!-- Main Chat Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 flex flex-col items-center gap-6">
+<!-- Date Separator -->
+<div class="text-center">
+<span class="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full">Сегодня, 14:32</span>
+</div>
+<!-- User Message -->
+<div class="w-full max-w-4xl flex justify-end mb-2">
+<div class="max-w-[80%] md:max-w-[60%] bg-primary text-white rounded-2xl rounded-tr-sm px-5 py-3 shadow-sm">
+<p>Составь жалобу на управляющую компанию. В подъезде дома по улице Ленина 42 уже неделю не работает лифт, а на заявки диспетчер не реагирует.</p>
+</div>
+</div>
+<!-- Bot Response Container -->
+<div class="w-full max-w-4xl flex gap-4">
+<!-- Bot Avatar -->
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center text-white mt-1 shadow-md shadow-primary/20">
+<span class="material-icons text-sm">smart_toy</span>
+</div>
+<!-- Bot Message Content -->
+<div class="flex flex-col gap-3 w-full max-w-[90%]">
+<div class="text-sm font-medium text-slate-500 dark:text-slate-400 ml-1">Complaint AI <span class="text-xs opacity-70 font-normal">14:33</span></div>
+<!-- Chat Bubble Text -->
+<div class="bg-white dark:bg-slate-800/50 p-4 rounded-xl rounded-tl-sm text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-slate-700/50">
+<p>Я подготовил проект жалобы в Государственную жилищную инспекцию на основе ваших данных. Пожалуйста, внимательно ознакомьтесь с текстом перед отправкой.</p>
+</div>
+<!-- Document Card (The "Light Theme" Element) -->
+<div class="mt-2 relative group perspective-1000">
+<!-- Document Styling -->
+<div class="bg-white text-slate-900 p-8 md:p-12 rounded-lg document-shadow relative overflow-hidden transition-transform duration-300">
+<!-- Watermark/Background Pattern -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#135bec_1px,transparent_1px)] [background-size:16px_16px]"></div>
+<!-- Top Accent Bar -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/80 to-primary/40"></div>
+<!-- Document Header -->
+<div class="flex justify-between items-start mb-8 border-b border-slate-100 pb-6">
+<div class="w-1/2">
+<p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Куда</p>
+<p class="text-sm font-semibold">В Государственную жилищную инспекцию</p>
+<p class="text-xs text-slate-500 mt-1">г. Москва, пр. Мира, д. 19</p>
+</div>
+<div class="w-1/2 text-right">
+<p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">От кого</p>
+<p class="text-sm font-semibold">[ФИО Заявителя]</p>
+<p class="text-xs text-slate-500 mt-1">ул. Ленина, д. 42, кв. 15</p>
+<p class="text-xs text-slate-500">+7 (900) 123-45-67</p>
+</div>
+</div>
+<!-- Document Title -->
+<div class="text-center mb-8">
+<h2 class="text-xl font-bold text-slate-900 uppercase tracking-tight">Жалоба</h2>
+<p class="text-sm text-slate-500 mt-1">на бездействие управляющей компании</p>
+</div>
+<!-- Document Body -->
+<div class="space-y-4 text-sm leading-relaxed text-slate-800 text-justify">
+<p>
+                                Я являюсь собственником жилого помещения по адресу: г. Москва, ул. Ленина, д. 42, кв. 15. Управление многоквартирным домом осуществляет УК «ЖилСервис».
+                            </p>
+<p>
+                                С <span class="bg-yellow-100 px-1 rounded">07.10.2023</span> по настоящее время в 3-м подъезде многоквартирного дома не функционирует пассажирский лифт. В связи с этим жильцы, в том числе пожилые люди и семьи с детьми, испытывают значительные трудности при подъеме на верхние этажи.
+                            </p>
+<p>
+                                Мною были неоднократно поданы заявки в диспетчерскую службу (Заявка №4521 от 08.10.2023), однако меры по устранению неисправности до сих пор не приняты. Сотрудники УК отказываются называть сроки ремонта, ссылаясь на отсутствие запчастей.
+                            </p>
+<p>
+                                На основании вышеизложенного, в соответствии со ст. 161 ЖК РФ и Правилами содержания общего имущества,
+                            </p>
+<p class="font-bold mt-6">ПРОШУ:</p>
+<ol class="list-decimal list-inside space-y-2 pl-2 marker:text-slate-400">
+<li>Провести проверку по фактам, изложенным в жалобе.</li>
+<li>Выдать предписание управляющей компании об устранении нарушений.</li>
+<li>Привлечь виновных должностных лиц к административной ответственности.</li>
+</ol>
+</div>
+<!-- Document Footer -->
+<div class="mt-12 pt-6 border-t border-slate-100 flex justify-between items-end">
+<div>
+<div class="h-px w-32 bg-slate-300 mb-2"></div>
+<p class="text-xs text-slate-400">(Подпись)</p>
+</div>
+<div class="text-right">
+<p class="text-xs text-slate-400">Дата составления</p>
+<p class="font-medium text-sm">14 октября 2023 г.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row items-center gap-3 mt-4 w-full">
+<button class="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg shadow-primary/25 active:scale-95 group">
+<span class="material-icons text-sm group-hover:scale-110 transition-transform">check_circle</span>
+                        Одобрить
+                    </button>
+<button class="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-lg font-medium transition-all active:scale-95">
+<span class="material-icons text-sm text-slate-500 dark:text-slate-400">edit</span>
+                        Редактировать
+                    </button>
+<button class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons text-sm animate-spin-slow">sync</span>
+<span class="hidden sm:inline">Перегенерировать</span>
+<span class="sm:hidden">Заново</span>
+</button>
+</div>
+<!-- Feedback text -->
+<p class="text-xs text-center sm:text-left text-slate-400 dark:text-slate-600 mt-1 pl-1">
+                    ИИ может допускать ошибки. Проверяйте важную информацию.
+                </p>
+</div>
+</div>
+<!-- Bottom spacing for scrolling -->
+<div class="h-4 w-full"></div>
+</main>
+<!-- Chat Input Footer -->
+<footer class="p-4 md:p-6 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 z-40">
+<div class="max-w-4xl mx-auto relative">
+<div class="absolute bottom-full mb-2 left-0 flex gap-2">
+<button class="text-xs bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 px-3 py-1.5 rounded-full transition-colors font-medium">
+                    Добавить фото
+                </button>
+<button class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-full transition-colors">
+                    Уточнить детали
+                </button>
+</div>
+<form class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800/80 p-2 rounded-xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-primary transition-all shadow-sm">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors" type="button">
+<span class="material-icons">add_circle_outline</span>
+</button>
+<textarea class="w-full bg-transparent border-none text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-0 resize-none py-2 max-h-32 custom-scrollbar" placeholder="Напишите сообщение..." rows="1"></textarea>
+<button class="p-2 bg-primary text-white rounded-lg shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center" type="button">
+<span class="material-icons text-xl">arrow_upward</span>
+</button>
+</form>
+<p class="text-center text-[10px] text-slate-400 dark:text-slate-600 mt-2">
+                Complaint AI v1.2.4 beta
+            </p>
+</div>
+</footer>
+</body></html>

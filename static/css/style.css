@@ -59,6 +59,30 @@ textarea {
     z-index: 1000;
 }
 
+/* Checkbox styling override for multiselect */
+input[type="checkbox"]:checked {
+    background-color: #135bec;
+    border-color: #135bec;
+}
+
+/* Government-style card — formal thin top border */
+.gov-card {
+    border-top: 2px solid #1e3a5f;
+    position: relative;
+}
+
+.dark .gov-card {
+    border-top-color: #4a7ab5;
+}
+
+/* Text truncation */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 /* Print styles */
 @media print {
 

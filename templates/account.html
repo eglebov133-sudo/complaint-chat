@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<script>
+    (function () {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+</script>
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Личный кабинет — Клик и Порядок</title>
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3d5a80",
+                        "primary-dark": "#2c4a6e",
+                        "primary-light": "#5b7faa",
+                        "background-dark": "#0f1117",
+                        "surface-dark": "#181b25",
+                        "surface-lighter": "#1e2230",
+                        "surface-border": "#2a3347",
+                        "text-muted": "#8896b3",
+                    },
+                    fontFamily: {
+                        "display": ["IBM Plex Sans", "sans-serif"]
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+            (function (m, e, t, r, i, k, a) {
+                m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+                m[i].l = 1 * new Date();
+                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+                k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+            })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=106967638', 'ym');
+        ym(106967638, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
+    </script>
+    <noscript>
+        <div><img src="https://mc.yandex.ru/watch/106967638" style="position:absolute; left:-9999px;" alt="" /></div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+</head>
+
+<body class="bg-background-dark font-display text-white min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-surface-border bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10">
+        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <span class="material-icons-round text-primary text-2xl">balance</span>
+                <span class="font-bold text-base tracking-tight">Клик и Порядок</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <a href="/tariffs" class="text-sm text-slate-400 hover:text-white transition">Тарифы</a>
+                <a href="/logout" class="text-sm text-slate-400 hover:text-red-400 transition flex items-center gap-1">
+                    <span class="material-icons-round text-base">logout</span>
+                    Выход
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        <!-- User Info Card -->
+        <div class="bg-surface-dark border border-surface-border rounded-lg p-6 mb-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span class="material-icons-round text-primary text-2xl">person</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-semibold">{{ user.name or 'Пользователь' }}</h1>
+                    <p class="text-sm text-slate-400">{{ email }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+                <span class="material-icons-round text-sm">calendar_today</span>
+                Зарегистрирован: {{ user.created_at[:10] }}
+            </div>
+            {% if user.phone %}
+            <div class="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                <span class="material-icons-round text-sm">phone</span>
+                {{ user.phone }}
+            </div>
+            {% endif %}
+            {% if user.address %}
+            <div class="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                <span class="material-icons-round text-sm">location_on</span>
+                {{ user.address }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Tariff Status -->
+        <div class="bg-surface-dark border border-surface-border rounded-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full flex items-center justify-center
+                        {% if tariff_info.id == 'premium' %}bg-amber-500/15{% elif tariff_info.id == 'standard' %}bg-blue-500/15{% else %}bg-slate-500/15{% endif %}">
+                        <span
+                            class="material-icons-round text-xl
+                            {% if tariff_info.id == 'premium' %}text-amber-400{% elif tariff_info.id == 'standard' %}text-blue-400{% else %}text-slate-400{% endif %}">workspace_premium</span>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-semibold">Тариф: {{ tariff_info.name }}</h2>
+                        {% if tariff_info.status == 'active' %}
+                        <p class="text-xs text-green-400">Активен</p>
+                        {% elif tariff_info.status == 'exhausted' %}
+                        <p class="text-xs text-red-400">Лимит исчерпан</p>
+                        {% elif tariff_info.status == 'expired' %}
+                        <p class="text-xs text-red-400">Истёк</p>
+                        {% else %}
+                        <p class="text-xs text-slate-500">Бесплатный доступ</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="text-right">
+                    {% if tariff_info.id != 'free' %}
+                    <div
+                        class="text-2xl font-bold
+                        {% if tariff_info.remaining == '∞' %}text-amber-400{% elif tariff_info.remaining == '0' %}text-red-400{% else %}text-blue-400{% endif %}">
+                        {{ tariff_info.remaining }}</div>
+                    <div class="text-[10px] text-slate-500">генераций</div>
+                    {% if tariff_info.expires %}
+                    <div class="text-[10px] text-slate-500 mt-0.5">до {{ tariff_info.expires }}</div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% if tariff_info.id == 'free' or tariff_info.status in ['exhausted', 'expired'] %}
+            <a href="/tariffs"
+                class="flex items-center justify-center gap-2 w-full p-2.5 mt-4 bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary rounded-md transition text-sm font-medium">
+                <span class="material-icons-round text-base">upgrade</span>
+                {% if tariff_info.id == 'free' %}Выбрать тариф{% else %}Продлить{% endif %}
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Stuchim.ru Email -->
+        {% if user.stuchim_email %}
+        <div class="bg-surface-dark border border-surface-border rounded-lg p-6 mb-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-green-500/15 flex items-center justify-center">
+                    <span class="material-icons-round text-green-400 text-xl">mail</span>
+                </div>
+                <div>
+                    <h2 class="text-sm font-semibold">Ваша почта stuchim.ru</h2>
+                    <p class="text-xs text-slate-500">Персональный ящик для обращений</p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <!-- Email address -->
+                <div class="flex items-center justify-between p-3 bg-surface-lighter rounded-md border border-white/5">
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Адрес</div>
+                        <div class="text-sm font-mono text-green-400">{{ user.stuchim_email }}</div>
+                    </div>
+                    <button
+                        onclick="navigator.clipboard.writeText('{{ user.stuchim_email }}'); this.querySelector('span').textContent='done'; setTimeout(()=>this.querySelector('span').textContent='content_copy', 1500)"
+                        class="p-2 hover:bg-white/5 rounded-md transition" title="Копировать">
+                        <span class="material-icons-round text-slate-400 text-base">content_copy</span>
+                    </button>
+                </div>
+                <!-- Password -->
+                <div class="flex items-center justify-between p-3 bg-surface-lighter rounded-md border border-white/5">
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Пароль</div>
+                        <div class="text-sm font-mono" id="email-pwd">
+                            <span id="pwd-hidden">••••••••••</span>
+                            <span id="pwd-visible" class="hidden">{{ user.stuchim_email_password }}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-1">
+                        <button
+                            onclick="document.getElementById('pwd-hidden').classList.toggle('hidden'); document.getElementById('pwd-visible').classList.toggle('hidden'); this.querySelector('span').textContent = document.getElementById('pwd-visible').classList.contains('hidden') ? 'visibility' : 'visibility_off'"
+                            class="p-2 hover:bg-white/5 rounded-md transition" title="Показать/скрыть">
+                            <span class="material-icons-round text-slate-400 text-base">visibility</span>
+                        </button>
+                        <button
+                            onclick="navigator.clipboard.writeText('{{ user.stuchim_email_password }}'); this.querySelector('span').textContent='done'; setTimeout(()=>this.querySelector('span').textContent='content_copy', 1500)"
+                            class="p-2 hover:bg-white/5 rounded-md transition" title="Копировать">
+                            <span class="material-icons-round text-slate-400 text-base">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Webmail link -->
+                <a href="{{ user.stuchim_webmail or 'https://webmail.beget.com' }}" target="_blank" rel="noopener"
+                    class="flex items-center justify-center gap-2 w-full p-3 bg-green-600/10 hover:bg-green-600/20 border border-green-500/20 text-green-400 rounded-md transition text-sm font-medium">
+                    <span class="material-icons-round text-base">open_in_new</span>
+                    Открыть вебпочту
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <a href="/"
+                class="bg-surface-dark border border-surface-border rounded-lg p-4 hover:border-primary/40 transition group">
+                <span
+                    class="material-icons-round text-primary text-2xl mb-2 block group-hover:scale-110 transition-transform">chat</span>
+                <span class="text-sm font-medium">Создать жалобу</span>
+                <p class="text-xs text-slate-500 mt-0.5">Начать новый чат</p>
+            </a>
+            <a href="/tariffs"
+                class="bg-surface-dark border border-surface-border rounded-lg p-4 hover:border-primary/40 transition group">
+                <span
+                    class="material-icons-round text-primary text-2xl mb-2 block group-hover:scale-110 transition-transform">payments</span>
+                <span class="text-sm font-medium">Тарифы</span>
+                <p class="text-xs text-slate-500 mt-0.5">Выбрать план</p>
+            </a>
+        </div>
+
+        <!-- Payment History -->
+        <div class="bg-surface-dark border border-surface-border rounded-lg p-6">
+            <h2 class="text-sm font-semibold mb-4 flex items-center gap-2">
+                <span class="material-icons-round text-primary text-lg">receipt_long</span>
+                История платежей
+            </h2>
+
+            {% if user.payments %}
+            <div class="space-y-3">
+                {% for p in user.payments | reverse %}
+                <div class="flex items-center justify-between p-3 bg-surface-lighter rounded-md border border-white/5">
+                    <div>
+                        <div class="text-sm font-medium">{{ p.tariff_name or p.tariff_id }}</div>
+                        <div class="text-xs text-slate-500">{{ p.recorded_at[:16] }}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold">{{ p.amount or '—' }} ₽</span>
+                        {% if p.status == 'succeeded' %}
+                        <span class="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Оплачено</span>
+                        {% elif p.status == 'pending' %}
+                        <span class="text-xs bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-full">Ожидание</span>
+                        {% else %}
+                        <span class="text-xs bg-slate-500/10 text-slate-400 px-2 py-0.5 rounded-full">{{ p.status
+                            }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6 text-slate-500">
+                <span class="material-icons-round text-3xl mb-2 block opacity-30">receipt_long</span>
+                <p class="text-sm">Платежей пока нет</p>
+                <a href="/tariffs" class="text-primary text-sm hover:underline mt-1 inline-block">Выбрать тариф
+                    →</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Complaint History -->
+        <div class="bg-surface-dark border border-surface-border rounded-lg p-6 mt-6">
+            <h2 class="text-sm font-semibold mb-4 flex items-center gap-2">
+                <span class="material-icons-round text-primary text-lg">description</span>
+                История жалоб
+            </h2>
+
+            {% if tariff_info.id == 'free' %}
+            <!-- Locked for free -->
+            <div class="text-center py-8 text-slate-500">
+                <span class="material-icons-round text-4xl mb-2 block opacity-20">lock</span>
+                <p class="text-sm mb-1">История жалоб доступна на платных тарифах</p>
+                <a href="/tariffs" class="text-primary text-sm hover:underline">Выбрать тариф →</a>
+            </div>
+            {% elif complaints %}
+            <div class="space-y-3">
+                {% for c in complaints | reverse %}
+                <div class="bg-surface-lighter rounded-md border border-white/5 overflow-hidden">
+                    <!-- Header -->
+                    <button
+                        onclick="this.parentElement.querySelector('.complaint-body').classList.toggle('hidden'); this.querySelector('.expand-icon').textContent = this.parentElement.querySelector('.complaint-body').classList.contains('hidden') ? 'expand_more' : 'expand_less';"
+                        class="w-full flex items-center justify-between p-3 hover:bg-white/[0.02] transition text-left">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                                <span class="material-icons-round text-primary text-base">gavel</span>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-medium truncate">{{ c.category_name or 'Жалоба' }}</div>
+                                <div class="text-xs text-slate-500">{{ c.created_at[:16].replace('T', ' ') }} · {{
+                                    c.recipients|length }} получател{{ 'ь' if c.recipients|length == 1 else 'ей' if
+                                    c.recipients|length >= 5 else 'я' }}</div>
+                            </div>
+                        </div>
+                        <span
+                            class="material-icons-round text-slate-500 text-xl expand-icon shrink-0">expand_more</span>
+                    </button>
+
+                    <!-- Body (hidden by default) -->
+                    <div class="complaint-body hidden border-t border-white/5 p-4">
+                        <!-- Recipients -->
+                        <div class="mb-4">
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                                Получатели
+                            </div>
+                            <div class="space-y-2">
+                                {% for r in c.recipients %}
+                                <div class="flex items-start gap-2 text-sm">
+                                    <span
+                                        class="material-icons-round text-primary text-sm mt-0.5 shrink-0">business</span>
+                                    <div>
+                                        <div class="font-medium text-white">{{ r.recipient_name or r.name or '' }}
+                                        </div>
+                                        {% if r.address %}
+                                        <div class="text-xs text-slate-500">{{ r.address }}</div>
+                                        {% endif %}
+                                        <div class="flex flex-wrap gap-3 mt-1 text-xs text-slate-400">
+                                            {% if r.email %}
+                                            <span class="flex items-center gap-1"><span
+                                                    class="material-icons-round text-xs">email</span>{{ r.email
+                                                }}</span>
+                                            {% endif %}
+                                            {% if r.phone %}
+                                            <span class="flex items-center gap-1"><span
+                                                    class="material-icons-round text-xs">phone</span>{{ r.phone
+                                                }}</span>
+                                            {% endif %}
+                                            {% if r.website %}
+                                            <a href="{{ r.website }}" target="_blank"
+                                                class="flex items-center gap-1 text-primary hover:underline"><span
+                                                    class="material-icons-round text-xs">language</span>Портал</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Complaint text -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Текст жалобы
+                                </div>
+                                <button
+                                    onclick="const t=this.closest('.complaint-body').querySelector('.complaint-text-content').textContent; navigator.clipboard.writeText(t); this.querySelector('span').textContent='done'; setTimeout(()=>this.querySelector('span').textContent='content_copy',1500)"
+                                    class="flex items-center gap-1 px-2 py-1 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded transition"
+                                    title="Копировать текст">
+                                    <span class="material-icons-round text-sm">content_copy</span>
+                                    Копировать
+                                </button>
+                            </div>
+                            <div
+                                class="complaint-text-content text-sm text-slate-300 leading-relaxed bg-surface-dark rounded-md p-3 max-h-96 overflow-y-auto whitespace-pre-wrap border border-white/5">
+                                {{ c.complaint_text }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6 text-slate-500">
+                <span class="material-icons-round text-3xl mb-2 block opacity-30">description</span>
+                <p class="text-sm">Жалоб пока нет</p>
+                <a href="/" class="text-primary text-sm hover:underline mt-1 inline-block">Создать жалобу →</a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+
+</html>

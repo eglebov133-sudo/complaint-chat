@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Complaint AI - Main Chat Screen</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0e4ac4",
+                        "primary-light": "#3b7bf7",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2130",
+                        "surface-lighter": "#252d3f"
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101622;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252d3f;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display h-screen flex flex-col overflow-hidden antialiased selection:bg-primary selection:text-white">
+<!-- Header -->
+<header class="flex-none border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark px-6 py-4 z-10 shadow-sm">
+<div class="max-w-4xl mx-auto flex items-center justify-between">
+<!-- Logo Section -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-icons-round text-2xl">gavel</span>
+</div>
+<div>
+<h1 class="font-bold text-lg tracking-tight">Complaint AI</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Юридический Помощник</p>
+</div>
+</div>
+<!-- Header Actions -->
+<div class="flex items-center gap-3">
+<!-- Restart Button -->
+<button class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-lighter transition-colors">
+<span class="material-icons-round text-lg">restart_alt</span>
+<span>Начать заново</span>
+</button>
+<button class="sm:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-lighter transition-colors">
+<span class="material-icons-round text-lg">restart_alt</span>
+</button>
+<div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+<!-- Theme Toggle -->
+<button aria-label="Toggle Theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-lighter transition-colors">
+<span class="material-icons-round text-xl">dark_mode</span>
+</button>
+<!-- Profile Avatar Placeholder -->
+<div class="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 ml-2">
+<img alt="User profile avatar placeholder" class="w-full h-full object-cover" data-alt="Small circular avatar of a smiling man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9TiMaQYxQpWoz3nKNrXHJYk6tWo-oDOkgUjp-vDgK3S54PP3ze1zDGofB3HXGqs-qiY8O3fXCuYKdA87-F803RvfiswSBdYRL7hSQfgT6564u29FkoGoIlgOcxsYX6aii9W77dMkOniN7tfZYquPqYfXRqkq828Ih4uVN4r4xZSVpQtsT-c9YKoZXNLkBZlWePoJx6_60yTR1X0NgxBrSaIo-FFmLBe67bUMLS5BYkB-ggX7TSbR5y5EqvN0O36dQY6ReRy7NBis"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Chat Area -->
+<main class="flex-1 flex flex-col max-w-4xl mx-auto w-full relative">
+<!-- Messages Container -->
+<div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 scroll-smooth pb-32">
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-surface-lighter px-3 py-1 rounded-full">Сегодня, 14:30</span>
+</div>
+<!-- AI Welcome Message -->
+<div class="flex gap-4 items-start animate-fade-in-up">
+<div class="flex-none w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1 border-2 border-transparent dark:border-surface-dark shadow-sm">
+<span class="material-icons-round text-xl">smart_toy</span>
+</div>
+<div class="space-y-2 max-w-[85%] sm:max-w-[75%]">
+<div class="bg-white dark:bg-surface-lighter rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 leading-relaxed">
+<p>Здравствуйте! Я ваш виртуальный юридический помощник.</p>
+<p class="mt-2">Я помогу вам составить официальную жалобу в государственные органы РФ. Вы можете описать свою ситуацию в свободной форме или выбрать одну из популярных категорий ниже.</p>
+</div>
+</div>
+</div>
+<!-- Quick Action Buttons (Chips) -->
+<div class="pl-14 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+<button class="group flex flex-col items-start gap-3 p-4 rounded-xl bg-white dark:bg-surface-lighter border border-slate-200 dark:border-slate-700 hover:border-primary dark:hover:border-primary hover:bg-slate-50 dark:hover:bg-surface-dark transition-all duration-200 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5">
+<div class="w-10 h-10 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+<span class="material-icons-round">shopping_bag</span>
+</div>
+<div>
+<span class="block font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">Защита прав потребителей</span>
+<span class="block text-xs text-slate-500 dark:text-slate-400 group-hover:text-primary/80 transition-colors">Возврат товара, услуги</span>
+</div>
+</button>
+<button class="group flex flex-col items-start gap-3 p-4 rounded-xl bg-white dark:bg-surface-lighter border border-slate-200 dark:border-slate-700 hover:border-primary dark:hover:border-primary hover:bg-slate-50 dark:hover:bg-surface-dark transition-all duration-200 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5">
+<div class="w-10 h-10 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+<span class="material-icons-round">home</span>
+</div>
+<div>
+<span class="block font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">Жилищные вопросы</span>
+<span class="block text-xs text-slate-500 dark:text-slate-400 group-hover:text-emerald-500/80 transition-colors">ЖКХ, соседи, ремонт</span>
+</div>
+</button>
+<button class="group flex flex-col items-start gap-3 p-4 rounded-xl bg-white dark:bg-surface-lighter border border-slate-200 dark:border-slate-700 hover:border-primary dark:hover:border-primary hover:bg-slate-50 dark:hover:bg-surface-dark transition-all duration-200 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5">
+<div class="w-10 h-10 rounded-lg bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+<span class="material-icons-round">local_hospital</span>
+</div>
+<div>
+<span class="block font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">Медицинские услуги</span>
+<span class="block text-xs text-slate-500 dark:text-slate-400 group-hover:text-rose-500/80 transition-colors">Качество лечения, ОМС</span>
+</div>
+</button>
+</div>
+<!-- Example User Message (Hidden by default, meant to show state if needed) -->
+<!-- 
+            <div class="flex gap-4 items-end flex-row-reverse">
+                <div class="flex-none w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 overflow-hidden">
+                     <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop" class="w-full h-full object-cover" alt="User" data-alt="User Avatar">
+                </div>
+                <div class="space-y-2 max-w-[85%] sm:max-w-[75%]">
+                    <div class="bg-primary text-white rounded-2xl rounded-br-sm px-5 py-4 shadow-sm">
+                        <p>У меня проблема с управляющей компанией.</p>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 pr-1">14:32</div>
+                </div>
+            </div>
+            -->
+</div>
+<!-- Input Area Overlay Gradient -->
+<div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background-light dark:from-background-dark to-transparent pointer-events-none z-10"></div>
+</main>
+<!-- Footer / Input Section -->
+<div class="flex-none bg-background-light dark:bg-background-dark p-4 sm:p-6 z-20">
+<div class="max-w-4xl mx-auto">
+<div class="relative flex items-end gap-2 bg-white dark:bg-surface-lighter rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 transition-shadow focus-within:shadow-xl focus-within:ring-1 focus-within:ring-primary/50">
+<!-- Attachment Button -->
+<button class="p-3 text-slate-400 hover:text-primary dark:hover:text-primary transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-surface-dark self-end mb-0.5">
+<span class="material-icons-round">attach_file</span>
+</button>
+<!-- Text Area -->
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 placeholder-slate-400 resize-none py-3.5 max-h-32 text-base leading-relaxed" placeholder="Опишите ситуацию..." rows="1" style="min-height: 48px;"></textarea>
+<!-- Send Button -->
+<button class="p-3 bg-primary hover:bg-primary-dark text-white rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center justify-center self-end mb-0.5">
+<span class="material-icons-round">send</span>
+</button>
+</div>
+<p class="text-center text-[10px] text-slate-400 dark:text-slate-600 mt-3 font-medium">
+                Complaint AI может допускать ошибки. Пожалуйста, проверяйте важную информацию.
+            </p>
+</div>
+</div>
+</body></html>

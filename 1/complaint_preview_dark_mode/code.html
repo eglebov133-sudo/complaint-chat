@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Complaint Preview - Dark Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e2330",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+        /* Custom scrollbar for chat area */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white h-screen flex flex-col antialiased overflow-hidden">
+<!-- Status Bar Area (Mock) -->
+<div class="h-12 w-full flex items-end justify-between px-6 pb-2 text-xs font-medium dark:text-white z-10 shrink-0">
+<span>9:41</span>
+<div class="flex items-center gap-1.5">
+<span class="material-icons text-sm">signal_cellular_alt</span>
+<span class="material-icons text-sm">wifi</span>
+<span class="material-icons text-sm">battery_full</span>
+</div>
+</div>
+<!-- App Header -->
+<header class="flex items-center justify-between px-4 py-3 bg-white/5 dark:bg-surface-dark/50 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shrink-0 z-10 sticky top-0">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons text-gray-600 dark:text-gray-300">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="text-base font-bold tracking-tight">Legal Assistant</h1>
+<span class="text-xs text-primary font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Online
+            </span>
+</div>
+<button class="p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons text-gray-600 dark:text-gray-300">more_vert</span>
+</button>
+</header>
+<!-- Chat Stream Area -->
+<main class="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-6 pb-32">
+<!-- Timestamp -->
+<div class="flex justify-center">
+<span class="text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/50 px-3 py-1 rounded-full">Today, 9:41 AM</span>
+</div>
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="bg-primary text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
+<p class="text-sm leading-relaxed">I need to file a complaint about a faulty refrigerator I bought last week. The store refuses to refund me.</p>
+</div>
+</div>
+<!-- Bot Avatar & Message Group -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-primary shrink-0 flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-icons text-sm">smart_toy</span>
+</div>
+<div class="flex flex-col gap-2 max-w-[90%]">
+<!-- Bot Bubble 1 -->
+<div class="bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+<p class="text-sm leading-relaxed">I've analyzed your case based on the Consumer Protection Law of the Russian Federation. I have drafted a formal complaint to Rospotrebnadzor for you.</p>
+</div>
+<!-- Document Preview Card -->
+<div class="mt-2 bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg shadow-black/20">
+<!-- Card Header -->
+<div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/30 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
+<span class="material-icons text-red-500 dark:text-red-400">picture_as_pdf</span>
+</div>
+<div>
+<h3 class="text-sm font-bold text-gray-900 dark:text-white">Complaint_Draft_v1.pdf</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">24 KB • Ready for Review</p>
+</div>
+</div>
+<span class="material-icons text-gray-400 text-xl">file_download</span>
+</div>
+<!-- Document Body Snippet -->
+<div class="p-5 relative">
+<div class="font-serif text-gray-600 dark:text-gray-300 text-[13px] leading-relaxed space-y-3 opacity-90">
+<p class="font-bold text-right text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-4">Official Document</p>
+<p class="uppercase font-bold text-center text-gray-900 dark:text-white text-xs mb-4">
+                                To the Head of the Federal Service for<br/>Surveillance on Consumer Rights Protection
+                            </p>
+<p>
+<span class="font-semibold">Subject:</span> Complaint regarding violation of consumer rights.
+                            </p>
+<p>
+                                I, [Name], hereby request an investigation into the actions of "Electronics World LLC". On October 15, 2023, I purchased a refrigerator (Model X-500) which ceased functioning within 5 days...
+                            </p>
+<p class="blur-[1px] select-none">
+                                According to Article 18 of the Law on Consumer Protection, the consumer has the right to demand a refund if significant defects are found...
+                            </p>
+<p class="blur-[2px] select-none text-transparent bg-clip-text bg-gradient-to-b from-gray-500 to-transparent">
+                                Furthermore, the store manager explicitly refused to accept the return application, citing internal policies which contradict federal law...
+                            </p>
+</div>
+<!-- Fade Overlay -->
+<div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white dark:from-surface-dark to-transparent flex items-end justify-center pb-4">
+<button class="bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 px-4 rounded-full transition-colors flex items-center gap-1 backdrop-blur-sm">
+<span class="material-icons text-sm">visibility</span>
+                                Read Full Text
+                            </button>
+</div>
+</div>
+</div>
+<!-- Bot Prompt -->
+<div class="bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm self-start">
+<p class="text-sm">Please review the text above. Does everything look correct?</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Action Area (Bottom Fixed) -->
+<div class="shrink-0 bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 p-4 pb-8 z-20">
+<div class="max-w-md mx-auto w-full flex items-center gap-3">
+<!-- Regenerate Button -->
+<button aria-label="Regenerate" class="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all shrink-0 group">
+<span class="material-icons group-hover:rotate-180 transition-transform duration-500">autorenew</span>
+</button>
+<!-- Edit Button -->
+<button class="flex-1 h-12 rounded-xl border border-primary/30 text-primary font-semibold text-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
+<span class="material-icons text-lg">edit</span>
+                Edit
+            </button>
+<!-- Approve Button -->
+<button class="flex-1 h-12 rounded-xl bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+<span class="material-icons text-lg">check_circle</span>
+                Approve
+            </button>
+</div>
+</div>
+<!-- Mobile Navigation Bar -->
+<nav class="shrink-0 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe">
+<div class="flex justify-around items-center h-16 px-2">
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center w-full h-full gap-1 group" href="#">
+<div class="bg-primary/10 px-4 py-1 rounded-full">
+<span class="material-icons text-primary text-2xl">chat</span>
+</div>
+<span class="text-[10px] font-medium text-primary">Chat</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex flex-col items-center justify-center w-full h-full gap-1 group" href="#">
+<span class="material-icons text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors text-2xl">folder_open</span>
+<span class="text-[10px] font-medium text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">My Cases</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full gap-1 group" href="#">
+<span class="material-icons text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors text-2xl">library_books</span>
+<span class="text-[10px] font-medium text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full gap-1 group" href="#">
+<!-- Avatar small -->
+<div class="w-6 h-6 rounded-full overflow-hidden border border-gray-300 dark:border-gray-600">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Small circular user profile picture showing a smiling man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcMbgpIbKcYZ5vG8T_eD9oWgcpEnhvSM1uGjTWkWIqWPv-ylhT3aITV4nhgblVmGmU0CwstVG1vTV_7wiLi93uocJKwC1Qt_FQj1S-4JsFYkPtJN8wy7z946r4KTxDTY29EgA4JbX5HMz4f5xQS8u7NB3ZCYzXbsdklcAwPQ-vfzSS4iEp0AfL0I591D88yXRu5lcLUNaae2LNvUBnaCnpZ5Np6RIQMZQEHAQQZ2xYZH-4brJnHYTjzpO-4Jnjq3wCQEAPYEVv8Q4"/>
+</div>
+<span class="text-[10px] font-medium text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">Profile</span>
+</a>
+</div>
+<!-- Safe area spacer for modern iOS home bar -->
+<div class="h-6 w-full"></div>
+</nav>
+</body></html>

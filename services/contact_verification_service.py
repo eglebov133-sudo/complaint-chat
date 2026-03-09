@@ -201,6 +201,193 @@ class ContactVerificationService:
             except:
                 return False
 
+    def identify_target(self, free_text: str, category: str = "") -> list:
+        """
+        Identify potential complaint targets from free-form user text.
+        Uses Perplexity to disambiguate vague descriptions into structured suggestions.
+        
+        Returns: list of dicts with {name, type, description, inn}
+        """
+        if not self.api_key:
+            return []
+        
+        context = f" (категория: {category})" if category else ""
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:5000",
+            "X-Title": "Complaint Target Identifier"
+        }
+        
+        messages = [
+            {
+                "role": "system",
+                "content": """Ты — помощник по определению объектов жалобы в России.
+
+Пользователь описывает, на кого хочет пожаловаться — своими словами, неточно. 
+Твоя задача — определить КОНКРЕТНЫЕ организации, органы или лица, которых он может иметь в виду.
+
+ПРАВИЛА:
+1. Верни 2-5 вариантов (от наиболее вероятного к менее)
+2. Для каждого варианта укажи: name, type, description, inn (если известен)
+3. type: "organization" (компания), "government" (госорган), "individual" (физлицо), "institution" (учреждение)
+4. description — краткое пояснение ПОЧЕМУ это может быть тот, на кого жалуется пользователь
+5. Если пользователь указал конкретное название — найди точную организацию с ИНН
+6. Если описание размытое — предложи типовые варианты для этой ситуации
+
+Формат ответа — ТОЛЬКО JSON массив:
+[
+    {"name": "ООО Рога и Копыта", "type": "organization", "description": "Торговая компания, возможный продавец", "inn": "7712345678"},
+    {"name": "Роспотребнадзор", "type": "government", "description": "Принимает жалобы на нарушение прав потребителей", "inn": null}
+]"""
+            },
+            {
+                "role": "user",
+                "content": f"Пользователь описал объект жалобы{context}: \"{free_text}\"\n\nОпредели конкретные организации/органы/лица. JSON:"
+            }
+        ]
+        
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.2,
+            "max_tokens": 600
+        }
+        
+        try:
+            print(f"ContactVerification: Identifying target from: '{free_text}'")
+            response = requests.post(
+                f"{self.base_url}/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=20
+            )
+            
+            if not response.ok:
+                print(f"ContactVerification identify_target Error: {response.status_code}")
+                return []
+            
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+            print(f"ContactVerification identify_target: {content[:300]}")
+            
+            # Parse JSON from response
+            json_str = content
+            if "```json" in content:
+                json_str = content.split("```json")[1].split("```")[0]
+            elif "```" in content:
+                json_str = content.split("```")[1].split("```")[0]
+            
+            suggestions = json.loads(json_str.strip())
+            
+            if isinstance(suggestions, list):
+                return suggestions[:5]
+            return []
+            
+        except Exception as e:
+            print(f"ContactVerification identify_target Error: {e}")
+            return []
+
+    def research_context(self, research_query: str, category: str = "", qa_context: str = "") -> list:
+        """
+        Универсальный исследователь контекста через Perplexity.
+        Используется QuizAgent-ом когда нужно уточнить факт: адрес, название учреждения,
+        подразделение, ФИО руководителя и т.д.
+        
+        Returns: list of dicts with {text, description}
+        """
+        if not self.api_key:
+            return []
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:5000",
+            "X-Title": "Quiz Context Researcher"
+        }
+        
+        messages = [
+            {
+                "role": "system",
+                "content": """Ты — исследователь фактов для системы составления жалоб в России.
+
+Тебе дают поисковый запрос и контекст диалога. Твоя задача — найти КОНКРЕТНЫЕ ФАКТЫ и предложить 3-6 вариантов ответа.
+
+ТИПЫ ИССЛЕДОВАНИЙ:
+- Адреса учреждений → найди ТОЧНЫЙ адрес с индексом
+- Названия организаций → найди ПОЛНОЕ юридическое название, ИНН если возможно
+- Подразделения → найди КОНКРЕТНОЕ подразделение (отдел, управление)
+- Руководители → найди ФИО и должность
+- Контакты → найди телефон, email, сайт
+
+ПРАВИЛА:
+1. Ищи ТОЛЬКО на официальных и достоверных источниках
+2. НЕ выдумывай данные — возвращай только то что нашёл
+3. Каждый вариант = КОНКРЕТНЫЙ факт, готовый к использованию в жалобе
+4. text = краткий текст для кнопки выбора (макс 60 символов)
+5. description = полная информация для использования в жалобе
+
+Формат ответа — ТОЛЬКО JSON массив:
+[
+    {"text": "Краткий вариант для кнопки", "description": "Полная информация: адрес, ИНН, ФИО и т.д."},
+    {"text": "Другой вариант", "description": "Полная информация"}
+]"""
+            },
+            {
+                "role": "user",
+                "content": f"""Категория жалобы: {category}
+
+Контекст диалога:
+{qa_context if qa_context else 'Начало диалога'}
+
+ЗАДАЧА ИССЛЕДОВАНИЯ: {research_query}
+
+Найди конкретные факты и предложи варианты. JSON:"""
+            }
+        ]
+        
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.1,
+            "max_tokens": 600
+        }
+        
+        try:
+            print(f"[RESEARCH] Perplexity research: '{research_query}'")
+            response = requests.post(
+                f"{self.base_url}/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=20
+            )
+            
+            if not response.ok:
+                print(f"[RESEARCH] Error: {response.status_code}")
+                return []
+            
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+            print(f"[RESEARCH] Result: {content[:300]}")
+            
+            # Parse JSON from response
+            json_str = content
+            if "```json" in content:
+                json_str = content.split("```json")[1].split("```")[0]
+            elif "```" in content:
+                json_str = content.split("```")[1].split("```")[0]
+            
+            suggestions = json.loads(json_str.strip())
+            
+            if isinstance(suggestions, list):
+                return suggestions[:6]
+            return []
+            
+        except Exception as e:
+            print(f"[RESEARCH] Error: {e}")
+            return []
+
 
 # Singleton
 contact_verification_service = ContactVerificationService()

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Main Chat Light Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+            extend: {
+                colors: {
+                    "primary": "#135bec",
+                    "background-light": "#f6f6f8",
+                    "background-dark": "#101622",
+                },
+                fontFamily: {
+                    "display": ["Public Sans", "sans-serif"]
+                },
+                borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                boxShadow: {
+                    'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                }
+            },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Simulating iOS Safe Areas */
+        .safe-top {
+            padding-top: env(safe-area-inset-top, 44px);
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 34px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-white font-display antialiased h-screen overflow-hidden flex flex-col transition-colors duration-300">
+<!-- Header Section -->
+<header class="flex-none bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 safe-top sticky top-0 z-50">
+<div class="px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons text-xl">gavel</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white">Complaint AI</h1>
+<div class="flex items-center gap-1.5">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Online</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button aria-label="Toggle Theme" class="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons text-xl">light_mode</span>
+</button>
+<button aria-label="Reset Chat" class="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons text-xl">restart_alt</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Chat Content Area -->
+<main class="flex-1 overflow-y-auto no-scrollbar px-4 py-6 space-y-6 relative">
+<!-- Date Divider -->
+<div class="flex justify-center">
+<span class="bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs px-3 py-1 rounded-full font-medium">Today</span>
+</div>
+<!-- Bot Message Group -->
+<div class="flex items-end gap-3 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-600 flex-shrink-0 flex items-center justify-center shadow-lg">
+<span class="material-icons text-white text-sm">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-soft border border-slate-100 dark:border-slate-700">
+<p class="text-slate-700 dark:text-slate-200 text-[15px] leading-relaxed">
+                        Hello! I am your AI legal assistant. <br/>I can help you file complaints with government agencies effectively.
+                    </p>
+</div>
+<div class="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-soft border border-slate-100 dark:border-slate-700">
+<p class="text-slate-700 dark:text-slate-200 text-[15px] leading-relaxed">
+                        What area do you need help with today?
+                    </p>
+</div>
+<span class="text-[11px] text-slate-400 ml-1 mt-1">10:42 AM</span>
+</div>
+</div>
+<!-- Interactive Options (Bot Suggested Actions) -->
+<div class="pl-11 flex flex-wrap gap-2 animate-fade-in-up">
+<button class="bg-white dark:bg-slate-800 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white text-primary border border-primary/20 dark:border-slate-600 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 shadow-sm flex items-center gap-2 group">
+<span class="material-icons text-lg group-hover:text-white text-primary transition-colors">shopping_bag</span>
+                Consumer Protection
+            </button>
+<button class="bg-white dark:bg-slate-800 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white text-primary border border-primary/20 dark:border-slate-600 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 shadow-sm flex items-center gap-2 group">
+<span class="material-icons text-lg group-hover:text-white text-primary transition-colors">home</span>
+                Housing Issues
+            </button>
+<button class="bg-white dark:bg-slate-800 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white text-primary border border-primary/20 dark:border-slate-600 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 shadow-sm flex items-center gap-2 group">
+<span class="material-icons text-lg group-hover:text-white text-primary transition-colors">medical_services</span>
+                Medical Services
+            </button>
+</div>
+<!-- User Message (Simulated Interaction) -->
+<!-- Just illustrating what a user message would look like, hidden initially or scrolled to view -->
+<!-- 
+        <div class="flex items-end justify-end gap-3 ml-auto max-w-[85%]">
+            <div class="flex flex-col gap-1 items-end">
+                <div class="bg-primary text-white p-4 rounded-2xl rounded-br-none shadow-md">
+                    <p class="text-[15px] leading-relaxed">
+                        I have an issue with my landlord regarding repairs.
+                    </p>
+                </div>
+                <span class="text-[11px] text-slate-400 mr-1 mt-1">10:43 AM</span>
+            </div>
+        </div>
+        -->
+</main>
+<!-- Input Area -->
+<footer class="flex-none bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 safe-bottom">
+<div class="flex items-end gap-2 max-w-screen-xl mx-auto">
+<!-- Attachment Button -->
+<button class="p-3 mb-1 text-slate-400 hover:text-primary transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0">
+<span class="material-icons">add_circle_outline</span>
+</button>
+<!-- Input Field -->
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-[1.25rem] px-4 py-3 min-h-[50px] flex items-center border border-transparent focus-within:border-primary/50 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all">
+<input class="w-full bg-transparent border-none p-0 text-slate-800 dark:text-white placeholder-slate-400 focus:ring-0 text-[16px]" placeholder="Type your message..." type="text"/>
+</div>
+<!-- Send Button -->
+<button class="w-[50px] h-[50px] mb-0 bg-primary hover:bg-primary/90 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/30 transition-all duration-200 flex-shrink-0">
+<span class="material-icons -ml-0.5">send</span>
+</button>
+</div>
+</footer>
+</body></html>

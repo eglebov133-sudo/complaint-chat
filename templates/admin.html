@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Панель управления</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3d5a80",
+                        "surface-dark": "#181b25",
+                        "surface-lighter": "#1e2230",
+                        "element-dark": "#232a3a",
+                        "surface-border": "#2a3347",
+                        "text-muted": "#8896b3",
+                    },
+                    fontFamily: { "display": ["IBM Plex Sans", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #0f1117;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        .user-row:hover {
+            background: rgba(61, 90, 128, 0.08);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .badge-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .badge-gray {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+        }
+
+        .stat-card {
+            background: #181b25;
+            border: 1px solid #2a3347;
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .detail-section {
+            background: #1e2230;
+            border: 1px solid #2a3347;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: #8896b3;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .complaint-card {
+            background: #232a3a;
+            border: 1px solid #2a3347;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Tabs */
+        .tab-nav {
+            display: flex;
+            gap: 2px;
+            background: #181b25;
+            border-bottom: 1px solid #2a3347;
+            padding: 0 16px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8896b3;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            color: #3d5a80;
+            border-bottom-color: #3d5a80;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Direct sub-tabs */
+        .sub-tab-nav {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 16px;
+        }
+
+        .sub-tab-btn {
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #8896b3;
+            background: #1e2230;
+            border: 1px solid #2a3347;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .sub-tab-btn:hover {
+            color: #fff;
+            border-color: #3d5a80;
+        }
+
+        .sub-tab-btn.active {
+            color: #fff;
+            background: #3d5a80;
+            border-color: #3d5a80;
+        }
+
+        .sub-panel {
+            display: none;
+        }
+
+        .sub-panel.active {
+            display: block;
+        }
+
+        /* Direct table */
+        .direct-table {
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .direct-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8896b3;
+            border-bottom: 1px solid #2a3347;
+        }
+
+        .direct-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #2a3347/30;
+        }
+
+        .direct-table tr:hover td {
+            background: rgba(61, 90, 128, 0.06);
+        }
+
+        .toggle-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .toggle-btn.pause {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .toggle-btn.pause:hover {
+            background: rgba(251, 191, 36, 0.25);
+        }
+
+        .toggle-btn.resume {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .toggle-btn.resume:hover {
+            background: rgba(34, 197, 94, 0.25);
+        }
+
+        .not-configured {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .not-configured .icon {
+            font-size: 48px;
+            color: #2a3347;
+            margin-bottom: 16px;
+        }
+
+        .not-configured h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .not-configured p {
+            font-size: 13px;
+            color: #8896b3;
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .not-configured code {
+            background: #232a3a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #5b7faa;
+        }
+    </style>
+</head>
+
+<body class="text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-[#181b25] border-b border-[#2a3347] sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 rounded-md bg-gradient-to-br from-primary to-[#2c4a6e] flex items-center justify-center">
+                    <span class="material-icons-round text-white text-lg">admin_panel_settings</span>
+                </div>
+                <h1 class="font-semibold text-sm">Панель управления</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/" class="text-xs text-text-muted hover:text-white transition-colors">← На сайт</a>
+                <a href="/admin/logout" class="text-xs text-red-400 hover:text-red-300 transition-colors">Выйти</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('users')">👥 Пользователи</button>
+        <button class="tab-btn" onclick="switchTab('direct')">📊 Яндекс Директ</button>
+    </div>
+
+    <!-- TAB: Users -->
+    <div id="tab-users" class="tab-panel active">
+        <main class="max-w-6xl mx-auto px-4 py-6">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                <div class="stat-card">
+                    <div class="text-2xl font-bold">{{ users|length }}</div>
+                    <div class="text-xs text-text-muted mt-1">Пользователей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-green-400">{{ users|selectattr('has_paid')|list|length }}</div>
+                    <div class="text-xs text-text-muted mt-1">Оплатили</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-blue-400">{{ users|sum(attribute='complaints_count') }}</div>
+                    <div class="text-xs text-text-muted mt-1">Жалоб сохранено</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-amber-400">{{ users|sum(attribute='payments_count') }}</div>
+                    <div class="text-xs text-text-muted mt-1">Платежей всего</div>
+                </div>
+            </div>
+
+            <!-- Funnel Stats -->
+            <div class="grid grid-cols-5 gap-2 mb-6">
+                <div class="stat-card text-center">
+                    <div class="text-lg font-bold text-blue-300">{{ users|sum(attribute='generated') }}</div>
+                    <div class="text-[10px] text-text-muted mt-1">📄 Сгенерировано</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-lg font-bold text-purple-300">{{ users|sum(attribute='recipients_opened') }}</div>
+                    <div class="text-[10px] text-text-muted mt-1">🎯 Получатели</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-lg font-bold text-cyan-300">{{ users|sum(attribute='channels_selected') }}</div>
+                    <div class="text-[10px] text-text-muted mt-1">📨 Каналы</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-lg font-bold text-green-300">{{ users|sum(attribute='email_clicked') }}</div>
+                    <div class="text-[10px] text-text-muted mt-1">✉️ Email</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-lg font-bold text-amber-300">{{ users|sum(attribute='portal_clicked') }}</div>
+                    <div class="text-[10px] text-text-muted mt-1">🌐 Портал</div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="mb-4">
+                <input id="search" type="text" placeholder="Поиск по email, имени, ИНН..."
+                    class="w-full sm:w-80 bg-[#1e2230] border border-[#2a3347] rounded-md px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary" />
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-[#181b25] border border-[#2a3347] rounded-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr
+                                class="border-b border-[#2a3347] text-left text-xs text-text-muted uppercase tracking-wide">
+                                <th class="px-3 py-3">#</th>
+                                <th class="px-3 py-3">Email</th>
+                                <th class="px-3 py-3">Имя</th>
+                                <th class="px-3 py-3">Тип</th>
+                                <th class="px-3 py-3 text-center" title="Сгенерировано">📄</th>
+                                <th class="px-3 py-3 text-center" title="Получатели">🎯</th>
+                                <th class="px-3 py-3 text-center" title="Каналы">📨</th>
+                                <th class="px-3 py-3 text-center" title="Email">✉️</th>
+                                <th class="px-3 py-3 text-center" title="Портал">🌐</th>
+                                <th class="px-3 py-3">Оплата</th>
+                                <th class="px-3 py-3">Рег-ция</th>
+                                <th class="px-3 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            {% for u in users %}
+                            <tr class="user-row border-b border-[#2a3347]/50 cursor-pointer transition-colors"
+                                data-email="{{ u.email }}" onclick="openUser('{{ u.email }}')">
+                                <td class="px-3 py-3 text-text-muted">{{ loop.index }}</td>
+                                <td class="px-3 py-3 font-medium text-white text-xs">{{ u.email }}</td>
+                                <td class="px-3 py-3 text-gray-300 text-xs">{{ u.name or '—' }}</td>
+                                <td class="px-3 py-3">
+                                    {% if u.user_type == 'organization' %}
+                                    <span class="badge badge-blue">юр</span>
+                                    {% elif u.user_type == 'ip' %}
+                                    <span class="badge badge-blue">ИП</span>
+                                    {% else %}
+                                    <span class="badge badge-gray">физ</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-3 text-center">{{ u.generated or '' }}</td>
+                                <td class="px-3 py-3 text-center">{{ u.recipients_opened or '' }}</td>
+                                <td class="px-3 py-3 text-center">{{ u.channels_selected or '' }}</td>
+                                <td class="px-3 py-3 text-center">{{ u.email_clicked or '' }}</td>
+                                <td class="px-3 py-3 text-center">{{ u.portal_clicked or '' }}</td>
+                                <td class="px-3 py-3">
+                                    {% if u.has_paid %}
+                                    <span class="badge badge-green">✓</span>
+                                    {% else %}
+                                    <span class="text-text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-3 text-text-muted text-xs">{{ u.created_at[:10] if u.created_at else
+                                    '—'
+                                    }}</td>
+                                <td class="px-3 py-3">
+                                    <a href="/admin/login-as/{{ u.email }}" target="_blank"
+                                        onclick="event.stopPropagation()"
+                                        class="inline-flex items-center justify-center w-6 h-6 rounded bg-primary/20 hover:bg-primary/40 text-primary transition-colors mr-1"
+                                        title="Войти как {{ u.email }}">
+                                        <span class="material-icons-round text-[14px]">login</span>
+                                    </a>
+                                    <span
+                                        class="material-icons-round text-text-muted text-lg cursor-pointer">chevron_right</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TAB: Yandex Direct -->
+    <div id="tab-direct" class="tab-panel">
+        <main class="max-w-6xl mx-auto px-4 py-6">
+            <div id="direct-loading" class="text-center text-text-muted py-12">Загрузка...</div>
+            <div id="direct-not-configured" class="not-configured" style="display:none">
+                <div class="icon"><span class="material-icons-round" style="font-size:48px">cloud_off</span></div>
+                <h3>API не настроен</h3>
+                <p>Добавьте <code>YANDEX_DIRECT_TOKEN</code> в файл <code>.env</code> на сервере, чтобы подключить
+                    управление рекламой.</p>
+                <p style="margin-top:12px">
+                    1. Зарегистрируйте приложение на <a href="https://oauth.yandex.ru/client/new/" target="_blank"
+                        style="color:#3d5a80">oauth.yandex.ru</a><br>
+                    2. Получите OAuth-токен<br>
+                    3. Добавьте в .env и перезапустите сервис
+                </p>
+            </div>
+            <div id="direct-content" style="display:none">
+                <!-- Sub-tabs -->
+                <div class="sub-tab-nav">
+                    <button class="sub-tab-btn active" onclick="switchSubTab('dashboard')">📊 Дашборд</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('campaigns')">📂 Кампании</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('ads')">📝 Объявления</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('keywords')">🔑 Ключевые слова</button>
+                </div>
+
+                <!-- Sub: Dashboard -->
+                <div id="sub-dashboard" class="sub-panel active">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-semibold text-base">Статистика</h2>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="stats-from"
+                                class="bg-[#1e2230] border border-[#2a3347] rounded px-2 py-1 text-xs text-white">
+                            <span class="text-text-muted text-xs">—</span>
+                            <input type="date" id="stats-to"
+                                class="bg-[#1e2230] border border-[#2a3347] rounded px-2 py-1 text-xs text-white">
+                            <button onclick="loadStats()"
+                                class="px-3 py-1 bg-primary hover:bg-[#2c4a6e] text-white rounded text-xs font-medium transition">Обновить</button>
+                        </div>
+                    </div>
+                    <!-- Totals -->
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+                        <div class="stat-card">
+                            <div id="t-impressions" class="text-2xl font-bold text-blue-300">—</div>
+                            <div class="text-xs text-text-muted mt-1">Показы</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="t-clicks" class="text-2xl font-bold text-green-300">—</div>
+                            <div class="text-xs text-text-muted mt-1">Клики</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="t-ctr" class="text-2xl font-bold text-purple-300">—</div>
+                            <div class="text-xs text-text-muted mt-1">CTR, %</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="t-cost" class="text-2xl font-bold text-amber-300">—</div>
+                            <div class="text-xs text-text-muted mt-1">Расход, ₽</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="t-cpc" class="text-2xl font-bold text-cyan-300">—</div>
+                            <div class="text-xs text-text-muted mt-1">Ср. CPC, ₽</div>
+                        </div>
+                    </div>
+                    <!-- Per-campaign table -->
+                    <div class="bg-[#181b25] border border-[#2a3347] rounded-lg overflow-hidden">
+                        <table class="direct-table">
+                            <thead>
+                                <tr>
+                                    <th>Кампания</th>
+                                    <th>Показы</th>
+                                    <th>Клики</th>
+                                    <th>CTR</th>
+                                    <th>Расход</th>
+                                    <th>Ср. CPC</th>
+                                    <th>Конв.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stats-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-text-muted py-6">Загрузка...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub: Campaigns -->
+                <div id="sub-campaigns" class="sub-panel">
+                    <h2 class="font-semibold text-base mb-4">Кампании</h2>
+                    <div class="bg-[#181b25] border border-[#2a3347] rounded-lg overflow-hidden">
+                        <table class="direct-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Тип</th>
+                                    <th>Статус</th>
+                                    <th>Состояние</th>
+                                    <th>Дневной бюджет</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaigns-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-text-muted py-6">Загрузка...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub: Ads -->
+                <div id="sub-ads" class="sub-panel">
+                    <h2 class="font-semibold text-base mb-4">Объявления</h2>
+                    <div class="bg-[#181b25] border border-[#2a3347] rounded-lg overflow-hidden">
+                        <table class="direct-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Кампания</th>
+                                    <th>Заголовок</th>
+                                    <th>Текст</th>
+                                    <th>Статус</th>
+                                    <th>Состояние</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ads-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-text-muted py-6">Загрузка...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub: Keywords -->
+                <div id="sub-keywords" class="sub-panel">
+                    <h2 class="font-semibold text-base mb-4">Ключевые слова</h2>
+                    <div class="bg-[#181b25] border border-[#2a3347] rounded-lg overflow-hidden">
+                        <table class="direct-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Фраза</th>
+                                    <th>Кампания</th>
+                                    <th>Группа</th>
+                                    <th>Ставка</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keywords-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-text-muted py-6">Загрузка...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div id="user-modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+        <div
+            class="bg-[#0f1117] border border-[#2a3347] rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+                <h2 id="modal-title" class="font-semibold text-lg">Пользователь</h2>
+                <button onclick="closeModal()" class="text-text-muted hover:text-white transition-colors">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div id="modal-content">
+                <div class="text-center text-text-muted py-8">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search
+        document.getElementById('search').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('#users-tbody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(q) ? '' : 'none';
+            });
+        });
+
+        // Open user detail
+        async function openUser(email) {
+            document.getElementById('user-modal').classList.add('active');
+            document.getElementById('modal-title').textContent = email;
+            document.getElementById('modal-content').innerHTML = '<div class="text-center text-text-muted py-8">Загрузка...</div>';
+
+            try {
+                const res = await fetch('/api/admin/user/' + encodeURIComponent(email));
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                renderUser(data.user);
+            } catch (e) {
+                document.getElementById('modal-content').innerHTML =
+                    '<div class="text-center text-red-400 py-8">' + e.message + '</div>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('user-modal').classList.remove('active');
+        }
+
+        function renderUser(u) {
+            const fmtDate = d => d ? new Date(d).toLocaleString('ru-RU') : '—';
+            let html = '';
+
+            // Credentials
+            html += `<div class="detail-section" style="border-color:#3d5a80">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-icons-round text-primary text-lg">key</span>
+                    <span class="font-medium text-sm">Учётные данные</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><div class="detail-label">Email (логин)</div><div class="detail-value font-mono">${u.email || '—'}</div></div>
+                    <div><div class="detail-label">Пароль</div><div class="detail-value font-mono">${u.password_raw || '***'}</div></div>
+                </div>
+                <a href="/admin/login-as/${encodeURIComponent(u.email)}" target="_blank"
+                    class="mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-[#2c4a6e] text-white rounded-md text-xs font-semibold transition-colors">
+                    <span class="material-icons-round text-sm">login</span> Войти как этот пользователь
+                </a>
+            </div>`;
+
+            // Profile
+            html += `<div class="detail-section">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-icons-round text-blue-400 text-lg">person</span>
+                    <span class="font-medium text-sm">Профиль</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><div class="detail-label">Имя</div><div class="detail-value">${u.name || u.fio || '—'}</div></div>
+                    <div><div class="detail-label">Тип</div><div class="detail-value">${u.user_type === 'organization' ? 'Юрлицо' : u.user_type === 'ip' ? 'ИП' : 'Физлицо'}</div></div>
+                    <div><div class="detail-label">Телефон</div><div class="detail-value">${u.phone || '—'}</div></div>
+                    <div><div class="detail-label">Адрес</div><div class="detail-value">${u.address || '—'}</div></div>
+                    ${u.org_name ? `<div><div class="detail-label">Организация</div><div class="detail-value">${u.org_name}</div></div>` : ''}
+                    ${u.inn ? `<div><div class="detail-label">ИНН</div><div class="detail-value font-mono">${u.inn}</div></div>` : ''}
+                    ${u.position ? `<div><div class="detail-label">Должность</div><div class="detail-value">${u.position}</div></div>` : ''}
+                    <div><div class="detail-label">Регистрация</div><div class="detail-value">${fmtDate(u.created_at)}</div></div>
+                    ${u.consent_at ? `<div><div class="detail-label">Согласие ПД</div><div class="detail-value">${fmtDate(u.consent_at)}</div></div>` : ''}
+                </div>
+            </div>`;
+
+            // Payments
+            const payments = u.payments || [];
+            html += `<div class="detail-section">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-icons-round text-green-400 text-lg">payments</span>
+                    <span class="font-medium text-sm">Платежи (${payments.length})</span>
+                </div>`;
+            if (payments.length === 0) {
+                html += `<div class="text-text-muted text-sm">Нет платежей</div>`;
+            } else {
+                payments.forEach(p => {
+                    const statusBadge = p.status === 'succeeded'
+                        ? '<span class="badge badge-green">оплачен</span>'
+                        : '<span class="badge badge-red">' + (p.status || '?') + '</span>';
+                    html += `<div class="complaint-card flex items-center justify-between">
+                        <div>
+                            <div class="text-sm">${p.amount ? p.amount + ' ₽' : '—'} ${statusBadge}</div>
+                            <div class="text-xs text-text-muted mt-1">${p.tariff || ''} · ${fmtDate(p.recorded_at || p.created_at)}</div>
+                            ${p.payment_id ? '<div class="text-xs text-text-muted font-mono mt-1">ID: ' + p.payment_id + '</div>' : ''}
+                        </div>
+                    </div>`;
+                });
+            }
+            html += `</div>`;
+
+            // Complaints
+            const complaints = u.complaints || [];
+            html += `<div class="detail-section">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-icons-round text-amber-400 text-lg">description</span>
+                    <span class="font-medium text-sm">Жалобы (${complaints.length})</span>
+                </div>`;
+            if (complaints.length === 0) {
+                html += `<div class="text-text-muted text-sm">Нет жалоб</div>`;
+            } else {
+                complaints.forEach((c, i) => {
+                    const text = c.complaint_text || '';
+                    const preview = text.length > 200 ? text.substring(0, 200) + '...' : text;
+                    const recipients = (c.recipients || []).map(r => r.name || r).join(', ');
+                    html += `<div class="complaint-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="badge badge-blue">${c.category_name || 'Без категории'}</span>
+                            <span class="text-xs text-text-muted">${fmtDate(c.created_at)}</span>
+                        </div>
+                        ${recipients ? '<div class="text-xs text-text-muted mb-2">→ ' + recipients + '</div>' : ''}
+                        <div class="text-xs text-gray-300 leading-relaxed whitespace-pre-line" id="complaint-${i}">${preview}</div>
+                        ${text.length > 200 ? `<button class="text-xs text-primary hover:underline mt-1" onclick="this.previousElementSibling.textContent=\`${text.replace(/`/g, "'").replace(/\\/g, "\\\\")}\`;this.remove()">Показать полностью</button>` : ''}
+                    </div>`;
+                });
+            }
+            html += `</div>`;
+
+            // Events log
+            const events = u.events || [];
+            html += `<div class="detail-section">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-icons-round text-purple-400 text-lg">timeline</span>
+                    <span class="font-medium text-sm">Лог событий (${events.length})</span>
+                </div>`;
+            if (events.length === 0) {
+                html += `<div class="text-text-muted text-sm">Нет событий</div>`;
+            } else {
+                const typeLabels = {
+                    'complaint_generated': '📄 Жалоба сгенерирована',
+                    'recipients_opened': '🎯 Открыты получатели',
+                    'channels_selected': '📨 Каналы выбраны',
+                    'complaint_sent': '✅ Жалоба отправлена',
+                    'email_clicked': '✉️ Клик Email',
+                    'portal_clicked': '🌐 Клик Портал',
+                };
+                const typeBadgeClass = {
+                    'complaint_generated': 'badge-blue',
+                    'recipients_opened': 'badge-gray',
+                    'channels_selected': 'badge-gray',
+                    'complaint_sent': 'badge-green',
+                    'email_clicked': 'badge-green',
+                    'portal_clicked': 'badge-blue',
+                };
+                // Show latest first
+                const sorted = [...events].reverse();
+                sorted.forEach(ev => {
+                    const label = typeLabels[ev.type] || ev.type;
+                    const cls = typeBadgeClass[ev.type] || 'badge-gray';
+                    const meta = ev.meta ? ' · ' + Object.values(ev.meta).join(', ') : '';
+                    html += `<div class="flex items-center justify-between py-1.5 border-b border-[#2a3347]/30 last:border-0">
+                        <div class="flex items-center gap-2">
+                            <span class="badge ${cls} text-[10px]">${label}</span>
+                            <span class="text-[10px] text-text-muted">${meta}</span>
+                        </div>
+                        <span class="text-[10px] text-text-muted">${fmtDate(ev.at)}</span>
+                    </div>`;
+                });
+            }
+            html += `</div>`;
+
+            document.getElementById('modal-content').innerHTML = html;
+        }
+
+        // Close modal on Escape
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        // ==================== TABS ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            event.target.classList.add('active');
+            if (tab === 'direct' && !window._directLoaded) loadDirect();
+        }
+
+        function switchSubTab(sub) {
+            document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('sub-' + sub).classList.add('active');
+            event.target.classList.add('active');
+            // Lazy-load data
+            if (sub === 'campaigns' && !window._campaignsLoaded) loadCampaigns();
+            if (sub === 'ads' && !window._adsLoaded) loadAds();
+            if (sub === 'keywords' && !window._keywordsLoaded) loadKeywords();
+        }
+
+        // ==================== YANDEX DIRECT ====================
+        async function loadDirect() {
+            try {
+                const res = await fetch('/api/admin/direct/status');
+                const data = await res.json();
+                document.getElementById('direct-loading').style.display = 'none';
+                if (!data.configured) {
+                    document.getElementById('direct-not-configured').style.display = 'block';
+                    return;
+                }
+                document.getElementById('direct-content').style.display = 'block';
+                window._directLoaded = true;
+                // Set default date range (last 30 days)
+                const today = new Date();
+                const monthAgo = new Date(today - 30 * 86400000);
+                document.getElementById('stats-to').value = today.toISOString().slice(0, 10);
+                document.getElementById('stats-from').value = monthAgo.toISOString().slice(0, 10);
+                loadStats();
+            } catch (e) {
+                document.getElementById('direct-loading').innerHTML = '<span class="text-red-400">Ошибка: ' + e.message + '</span>';
+            }
+        }
+
+        async function loadStats() {
+            const from = document.getElementById('stats-from').value;
+            const to = document.getElementById('stats-to').value;
+            const tbody = document.getElementById('stats-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-muted py-6">Загрузка...</td></tr>';
+
+            try {
+                const res = await fetch(`/api/admin/direct/stats?from=${from}&to=${to}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-red-400 py-6">${data.error}</td></tr>`;
+                    return;
+                }
+                if (data.status === 'building') {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-amber-400 py-6">⏳ Отчёт формируется... Обновите через 5 сек</td></tr>';
+                    return;
+                }
+
+                const t = data.totals || {};
+                document.getElementById('t-impressions').textContent = (t.impressions || 0).toLocaleString('ru');
+                document.getElementById('t-clicks').textContent = (t.clicks || 0).toLocaleString('ru');
+                document.getElementById('t-ctr').textContent = (t.ctr || 0) + '%';
+                document.getElementById('t-cost').textContent = (t.cost || 0).toLocaleString('ru', { minimumFractionDigits: 2 });
+                document.getElementById('t-cpc').textContent = (t.avg_cpc || 0).toLocaleString('ru', { minimumFractionDigits: 2 });
+
+                if (!data.stats || data.stats.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-muted py-6">Нет данных за выбранный период</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.stats.map(s => `<tr>
+                    <td class="text-white font-medium">${s.campaign_name}</td>
+                    <td>${s.impressions.toLocaleString('ru')}</td>
+                    <td>${s.clicks.toLocaleString('ru')}</td>
+                    <td>${s.ctr}%</td>
+                    <td>${s.cost.toLocaleString('ru', { minimumFractionDigits: 2 })} ₽</td>
+                    <td>${s.avg_cpc.toLocaleString('ru', { minimumFractionDigits: 2 })} ₽</td>
+                    <td>${s.conversions}</td>
+                </tr>`).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-red-400 py-6">${e.message}</td></tr>`;
+            }
+        }
+
+        async function loadCampaigns() {
+            const tbody = document.getElementById('campaigns-tbody');
+            try {
+                const res = await fetch('/api/admin/direct/campaigns');
+                const data = await res.json();
+                if (data.error) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-red-400 py-6">${data.error}</td></tr>`; return; }
+                window._campaignsLoaded = true;
+                const campaigns = data.campaigns || [];
+                if (campaigns.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-muted py-6">Нет кампаний</td></tr>'; return; }
+
+                const statusBadge = (s) => {
+                    const map = { ACCEPTED: 'badge-green', DRAFT: 'badge-gray', MODERATION: 'badge-blue', REJECTED: 'badge-red' };
+                    return `<span class="badge ${map[s] || 'badge-gray'}">${s}</span>`;
+                };
+                const stateBadge = (s) => {
+                    const map = { ON: 'badge-green', OFF: 'badge-red', SUSPENDED: 'badge-gray', ENDED: 'badge-gray', CONVERTED: 'badge-blue' };
+                    return `<span class="badge ${map[s] || 'badge-gray'}">${s}</span>`;
+                };
+
+                tbody.innerHTML = campaigns.map(c => {
+                    const budget = c.DailyBudget ? (c.DailyBudget.Amount / 1000000).toFixed(0) + ' ₽' : '—';
+                    const isOn = c.State === 'ON';
+                    const toggleClass = isOn ? 'pause' : 'resume';
+                    const toggleLabel = isOn ? '⏸ Пауза' : '▶ Запуск';
+                    const toggleAction = isOn ? 'suspend' : 'resume';
+                    return `<tr>
+                        <td class="text-text-muted font-mono text-xs">${c.Id}</td>
+                        <td class="text-white font-medium">${c.Name}</td>
+                        <td class="text-xs">${c.Type || '—'}</td>
+                        <td>${statusBadge(c.Status)}</td>
+                        <td>${stateBadge(c.State)}</td>
+                        <td>${budget}</td>
+                        <td><button class="toggle-btn ${toggleClass}" onclick="toggleCampaign(${c.Id}, '${toggleAction}')">${toggleLabel}</button></td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-red-400 py-6">${e.message}</td></tr>`;
+            }
+        }
+
+        async function toggleCampaign(id, action) {
+            try {
+                await fetch(`/api/admin/direct/campaign/${id}/${action}`, { method: 'POST' });
+                window._campaignsLoaded = false;
+                loadCampaigns();
+            } catch (e) { alert('Ошибка: ' + e.message); }
+        }
+
+        async function loadAds() {
+            const tbody = document.getElementById('ads-tbody');
+            try {
+                const res = await fetch('/api/admin/direct/ads');
+                const data = await res.json();
+                if (data.error) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-6">${data.error}</td></tr>`; return; }
+                window._adsLoaded = true;
+                const ads = data.ads || [];
+                if (ads.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-text-muted py-6">Нет объявлений</td></tr>'; return; }
+
+                tbody.innerHTML = ads.map(a => {
+                    const ta = a.TextAd || {};
+                    return `<tr>
+                        <td class="text-text-muted font-mono text-xs">${a.Id}</td>
+                        <td class="text-text-muted text-xs">${a.CampaignId}</td>
+                        <td class="text-white font-medium">${ta.Title || '—'}${ta.Title2 ? ' — ' + ta.Title2 : ''}</td>
+                        <td class="text-xs text-gray-300" style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ta.Text || '—'}</td>
+                        <td><span class="badge ${a.Status === 'ACCEPTED' ? 'badge-green' : a.Status === 'REJECTED' ? 'badge-red' : 'badge-gray'}">${a.Status}</span></td>
+                        <td><span class="badge ${a.State === 'ON' ? 'badge-green' : 'badge-gray'}">${a.State}</span></td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-6">${e.message}</td></tr>`;
+            }
+        }
+
+        async function loadKeywords() {
+            const tbody = document.getElementById('keywords-tbody');
+            try {
+                const res = await fetch('/api/admin/direct/keywords');
+                const data = await res.json();
+                if (data.error) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-6">${data.error}</td></tr>`; return; }
+                window._keywordsLoaded = true;
+                const kws = data.keywords || [];
+                if (kws.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-text-muted py-6">Нет ключевых слов</td></tr>'; return; }
+
+                tbody.innerHTML = kws.map(k => {
+                    const bid = k.Bid ? (k.Bid / 1000000).toFixed(2) + ' ₽' : '—';
+                    return `<tr>
+                        <td class="text-text-muted font-mono text-xs">${k.Id}</td>
+                        <td class="text-white font-medium">${k.Keyword}</td>
+                        <td class="text-text-muted text-xs">${k.CampaignId || '—'}</td>
+                        <td class="text-text-muted text-xs">${k.AdGroupId || '—'}</td>
+                        <td>${bid}</td>
+                        <td><span class="badge ${k.State === 'ON' ? 'badge-green' : 'badge-gray'}">${k.Status || k.State || '—'}</span></td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-6">${e.message}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Complaint AI - Open Text Input</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-display min-h-screen flex overflow-hidden selection:bg-primary/30 selection:text-primary">
+<!-- Sidebar Navigation -->
+<aside class="w-20 lg:w-72 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-[#151b28] transition-all duration-300">
+<!-- Logo Area -->
+<div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-200 dark:border-slate-800">
+<div class="w-8 h-8 rounded bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-icons text-white text-lg">gavel</span>
+</div>
+<span class="ml-3 font-bold text-lg hidden lg:block tracking-tight">Complaint AI</span>
+</div>
+<!-- New Chat Button -->
+<div class="p-4">
+<button class="w-full bg-primary hover:bg-blue-600 text-white p-3 rounded-lg flex items-center justify-center lg:justify-start shadow-md hover:shadow-lg transition-all group">
+<span class="material-icons text-xl group-hover:scale-110 transition-transform">add</span>
+<span class="ml-3 font-medium hidden lg:block">Новая жалоба</span>
+</button>
+</div>
+<!-- History List -->
+<div class="flex-1 overflow-y-auto py-2 px-3 space-y-1 custom-scrollbar">
+<div class="px-3 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden lg:block">История</div>
+<!-- Active Item -->
+<button class="w-full text-left p-3 rounded-lg bg-slate-100 dark:bg-primary/10 border border-transparent dark:border-primary/20 flex items-center group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
+<span class="material-icons text-primary text-xl mr-3">chat_bubble_outline</span>
+<div class="flex-1 overflow-hidden hidden lg:block">
+<h4 class="text-sm font-medium truncate text-slate-900 dark:text-white">ДТП на Ленинском</h4>
+<p class="text-xs text-slate-500 truncate dark:text-slate-400">Черновик • 2 мин назад</p>
+</div>
+</button>
+<!-- Inactive Item -->
+<button class="w-full text-left p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center transition-colors group">
+<span class="material-icons text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300 text-xl mr-3">history</span>
+<div class="flex-1 overflow-hidden hidden lg:block">
+<h4 class="text-sm font-medium truncate text-slate-700 dark:text-slate-300">ЖКХ Жалоба #42</h4>
+<p class="text-xs text-slate-500 truncate dark:text-slate-500">Отправлено • Вчера</p>
+</div>
+</button>
+<!-- Inactive Item -->
+<button class="w-full text-left p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center transition-colors group">
+<span class="material-icons text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300 text-xl mr-3">history</span>
+<div class="flex-1 overflow-hidden hidden lg:block">
+<h4 class="text-sm font-medium truncate text-slate-700 dark:text-slate-300">Нарушение тишины</h4>
+<p class="text-xs text-slate-500 truncate dark:text-slate-500">Архив • 3 дня назад</p>
+</div>
+</button>
+</div>
+<!-- User Profile -->
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<button class="flex items-center w-full p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="Portrait of a young man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS_seEs7B_vmZaXDILgrM3QTXCgKyaacd1jqP_peMuECHWI6NtHPYuoesQoeiNkrDg0paZ5Mvxnjh6F6QvRe-osU-bneOozxRen6mf80vKftUIdnSLTyT_6Yd4897s-ZX0fhjW1q-lTIMEmbntb_msW2TyflrqnehMfXQSCr4YekxhtJz9V1E1rbDFJazmBP6Tt_NAod5JR353JzXaowBebct14YFJ0KkaWkS6VaFNqfOPfHF7TjhZ9EFck1Z3R9371u4VYkUPvac"/>
+</div>
+<div class="ml-3 hidden lg:block text-left overflow-hidden">
+<p class="text-sm font-medium text-slate-900 dark:text-white truncate">Алексей Иванов</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">alexey@mail.ru</p>
+</div>
+<span class="material-icons ml-auto text-slate-400 text-lg hidden lg:block">settings</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen relative">
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#101622]/90 backdrop-blur-md z-10 sticky top-0">
+<div class="flex items-center">
+<div class="flex flex-col">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white">Составление жалобы</h2>
+<span class="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded w-fit mt-0.5">Черновик</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Download Draft">
+<span class="material-icons">download</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
+<span class="material-icons">delete_outline</span>
+</button>
+</div>
+</header>
+<!-- Chat Container -->
+<div class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6 scroll-smooth" id="chat-container">
+<!-- Timestamp -->
+<div class="flex justify-center">
+<span class="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Сегодня, 10:42</span>
+</div>
+<!-- Bot Message 1 -->
+<div class="flex gap-4 max-w-3xl mx-auto w-full">
+<div class="w-8 h-8 rounded bg-gradient-to-br from-primary to-blue-400 flex-shrink-0 flex items-center justify-center shadow-lg shadow-primary/20 mt-1">
+<span class="material-icons text-white text-xs">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-2">
+<span class="text-sm font-bold text-slate-900 dark:text-white">Помощник AI</span>
+</div>
+<div class="p-4 rounded-xl rounded-tl-none bg-white dark:bg-[#1f2937] border border-slate-200 dark:border-slate-700 shadow-sm text-slate-700 dark:text-slate-200 leading-relaxed text-[15px]">
+<p>Здравствуйте! Я ваш юридический помощник. Я помогу вам составить официальную жалобу в государственные органы.</p>
+</div>
+</div>
+</div>
+<!-- Bot Message 2 -->
+<div class="flex gap-4 max-w-3xl mx-auto w-full">
+<div class="w-8 h-8 rounded bg-gradient-to-br from-primary to-blue-400 flex-shrink-0 flex items-center justify-center shadow-lg shadow-primary/20 mt-1">
+<span class="material-icons text-white text-xs">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-2">
+<span class="text-sm font-bold text-slate-900 dark:text-white">Помощник AI</span>
+<span class="text-xs text-slate-400">10:43</span>
+</div>
+<div class="p-4 rounded-xl rounded-tl-none bg-white dark:bg-[#1f2937] border border-slate-200 dark:border-slate-700 shadow-sm text-slate-700 dark:text-slate-200 leading-relaxed text-[15px]">
+<p>Опишите ситуацию подробно.</p>
+<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Укажите что произошло, где и когда (дату и время). Если есть свидетели, упомяните это.</p>
+</div>
+</div>
+</div>
+<!-- User Typing Indicator (Optional, visualizing "waiting for input") -->
+<!-- <div class="flex gap-4 flex-row-reverse max-w-3xl mx-auto w-full opacity-50">
+                 <div class="text-xs text-slate-400 italic">Ожидание ввода...</div>
+             </div> -->
+<!-- Spacer to push content above the fixed input -->
+<div class="h-24"></div>
+</div>
+<!-- Sticky Input Area -->
+<div class="absolute bottom-0 left-0 right-0 p-4 lg:p-6 bg-gradient-to-t from-white via-white to-transparent dark:from-[#101622] dark:via-[#101622] dark:to-transparent pt-12">
+<div class="max-w-3xl mx-auto w-full relative">
+<!-- Attachment Preview (Hidden by default, shown for structure) -->
+<!-- <div class="absolute -top-12 left-0 flex gap-2">
+                    <div class="bg-white dark:bg-slate-800 p-2 rounded-lg shadow border border-slate-200 dark:border-slate-700 flex items-center gap-2 text-xs">
+                        <span class="material-icons text-base text-primary">image</span> photo_proof.jpg 
+                        <button class="hover:text-red-500"><span class="material-icons text-sm">close</span></button>
+                    </div>
+                </div> -->
+<!-- Input Container -->
+<div class="relative bg-white dark:bg-[#151b28] rounded-xl border-2 border-primary/50 dark:border-primary/40 shadow-xl shadow-primary/5 ring-4 ring-primary/10 dark:ring-primary/5 focus-within:border-primary focus-within:ring-primary/20 transition-all duration-300">
+<textarea autofocus="" class="w-full bg-transparent border-0 focus:ring-0 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 py-4 pl-4 pr-14 resize-none min-h-[60px] max-h-[200px] text-base leading-relaxed scrollbar-hide" placeholder="Напишите здесь... (например: 'Вчера я увидел незаконную свалку...')" rows="2"></textarea>
+<!-- Action Buttons inside input -->
+<div class="absolute right-2 bottom-2 flex items-center gap-1">
+<button class="p-2 text-slate-400 hover:text-primary dark:hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors" title="Прикрепить файл">
+<span class="material-icons text-xl transform rotate-45">attach_file</span>
+</button>
+<button class="p-2 bg-primary hover:bg-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center justify-center group" title="Отправить">
+<span class="material-icons text-xl group-hover:translate-x-0.5 transition-transform">send</span>
+</button>
+</div>
+</div>
+<div class="mt-2 text-center">
+<p class="text-xs text-slate-400 dark:text-slate-500">
+                        Complaint AI может допускать ошибки. Проверяйте важную информацию.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Custom Scrollbar Styles for Webkit -->
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>
