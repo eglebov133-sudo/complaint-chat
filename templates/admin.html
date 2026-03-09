@@ -431,9 +431,77 @@
     <!-- TAB: Funnel -->
     <div id="tab-funnel" class="tab-panel">
         <main class="max-w-6xl mx-auto px-4 py-6">
-            <div id="funnel-loading" class="text-center text-text-muted py-12">Загрузка воронки...</div>
+            <div id="funnel-loading" class="text-center text-text-muted py-12">Загрузка данных...</div>
             <div id="funnel-content" style="display:none">
-                <!-- Funnel Stats -->
+
+                <!-- Metrika Traffic Summary -->
+                <div id="metrika-section">
+                    <h2 class="text-sm font-semibold mb-3 text-text-muted uppercase tracking-wide">📊 Яндекс Метрика (7
+                        дней)</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                        <div class="stat-card">
+                            <div id="mk-visits" class="text-2xl font-bold">—</div>
+                            <div class="text-xs text-text-muted mt-1">Визитов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="mk-users" class="text-2xl font-bold">—</div>
+                            <div class="text-xs text-text-muted mt-1">Посетителей</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="mk-bounce" class="text-2xl font-bold">—</div>
+                            <div class="text-xs text-text-muted mt-1">Отказы %</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="mk-depth" class="text-2xl font-bold">—</div>
+                            <div class="text-xs text-text-muted mt-1">Глубина</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="mk-duration" class="text-2xl font-bold">—</div>
+                            <div class="text-xs text-text-muted mt-1">Ср. время (с)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="mk-status" class="text-2xl font-bold text-green-400">—</div>
+                            <div class="text-xs text-text-muted mt-1">Статус API</div>
+                        </div>
+                    </div>
+
+                    <!-- Traffic Sources + Search Phrases -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div class="stat-card">
+                            <h3 class="text-sm font-semibold mb-3">Источники трафика</h3>
+                            <div id="metrika-sources" class="text-xs text-text-muted">Загрузка...</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3 class="text-sm font-semibold mb-3">🔍 Поисковые запросы</h3>
+                            <div id="metrika-search" class="text-xs text-text-muted max-h-[300px] overflow-y-auto">
+                                Загрузка...</div>
+                        </div>
+                    </div>
+
+                    <!-- UTM Campaigns -->
+                    <div class="stat-card mb-6">
+                        <h3 class="text-sm font-semibold mb-3">📢 UTM-кампании (Директ)</h3>
+                        <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+                            <table class="w-full text-xs">
+                                <thead class="sticky top-0 bg-[#181b25]">
+                                    <tr class="text-left text-text-muted border-b border-surface-border">
+                                        <th class="py-2 pr-2">Кампания</th>
+                                        <th class="py-2 pr-2">Источник</th>
+                                        <th class="py-2 pr-2">Ключевик (utm_term)</th>
+                                        <th class="py-2 pr-2">Визиты</th>
+                                        <th class="py-2 pr-2">Отказы</th>
+                                        <th class="py-2">Ср. время</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="metrika-utm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internal Funnel -->
+                <h2 class="text-sm font-semibold mb-3 text-text-muted uppercase tracking-wide mt-6">🔄 Воронка чата
+                    (внутренняя)</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                     <div class="stat-card">
                         <div id="fn-total" class="text-2xl font-bold">0</div>
@@ -452,14 +520,10 @@
                         <div class="text-xs text-text-muted mt-1">Отправлено</div>
                     </div>
                 </div>
-
-                <!-- Funnel Bars -->
                 <div class="stat-card mb-6">
-                    <h3 class="text-sm font-semibold mb-4">Воронка конверсии</h3>
+                    <h3 class="text-sm font-semibold mb-4">Конверсия по шагам</h3>
                     <div id="funnel-bars"></div>
                 </div>
-
-                <!-- Visitors Table -->
                 <div class="stat-card">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-semibold">Посетители</h3>
@@ -1028,16 +1092,95 @@
 
         async function loadFunnel() {
             try {
-                const [funnelRes, visitorsRes] = await Promise.all([
+                // Fetch internal funnel + visitors + Metrika data in parallel
+                const [funnelRes, visitorsRes, mkStatus] = await Promise.all([
                     fetch('/api/admin/funnel').then(r => r.json()),
-                    fetch('/api/admin/visitors').then(r => r.json())
+                    fetch('/api/admin/visitors').then(r => r.json()),
+                    fetch('/api/admin/metrika/status').then(r => r.json()).catch(() => ({ configured: false }))
                 ]);
 
                 document.getElementById('funnel-loading').style.display = 'none';
                 document.getElementById('funnel-content').style.display = 'block';
                 window._funnelLoaded = true;
 
-                // Stats
+                // === METRIKA ===
+                if (mkStatus.configured) {
+                    document.getElementById('mk-status').textContent = '✅';
+                    // Load all Metrika reports in parallel
+                    const [summary, search, sources, utm] = await Promise.all([
+                        fetch('/api/admin/metrika/summary').then(r => r.json()).catch(() => null),
+                        fetch('/api/admin/metrika/search').then(r => r.json()).catch(() => null),
+                        fetch('/api/admin/metrika/sources').then(r => r.json()).catch(() => null),
+                        fetch('/api/admin/metrika/utm').then(r => r.json()).catch(() => null)
+                    ]);
+
+                    // Summary stats
+                    if (summary && summary.totals) {
+                        const t = summary.totals;
+                        document.getElementById('mk-visits').textContent = t.visits;
+                        document.getElementById('mk-users').textContent = t.users;
+                        document.getElementById('mk-bounce').textContent = t.bounce_rate + '%';
+                        document.getElementById('mk-depth').textContent = t.depth;
+                        document.getElementById('mk-duration').textContent = t.avg_duration;
+                    }
+
+                    // Traffic sources
+                    if (sources && sources.sources) {
+                        const el = document.getElementById('metrika-sources');
+                        el.innerHTML = sources.sources.map(s => {
+                            const w = Math.max(3, (s.visits / (sources.sources[0]?.visits || 1)) * 100);
+                            return `<div class="flex items-center gap-2 mb-2">
+                                <span class="w-28 shrink-0 truncate">${s.source}</span>
+                                <div class="flex-1 h-5 bg-[#1e2230] rounded relative overflow-hidden">
+                                    <div class="h-full bg-primary/60 rounded" style="width:${w}%"></div>
+                                    <span class="absolute inset-0 flex items-center px-2 text-[10px]">${s.visits} виз. · ${s.bounce_rate}% отк. · ${s.avg_duration}с</span>
+                                </div>
+                            </div>`;
+                        }).join('');
+                    }
+
+                    // Search phrases
+                    if (search && search.phrases) {
+                        const el = document.getElementById('metrika-search');
+                        if (search.phrases.length === 0) {
+                            el.innerHTML = '<span class="text-text-muted">Нет данных о поисковых запросах</span>';
+                        } else {
+                            el.innerHTML = search.phrases.map(p =>
+                                `<div class="flex justify-between py-1.5 border-b border-surface-border/50">
+                                    <span class="text-white truncate max-w-[60%]" title="${p.phrase}">${p.phrase}</span>
+                                    <span class="text-text-muted shrink-0 ml-2">${p.visits} виз. · ${p.bounce_rate}% отк. · ${p.avg_duration}с</span>
+                                </div>`
+                            ).join('');
+                        }
+                    }
+
+                    // UTM campaigns
+                    if (utm && utm.campaigns) {
+                        const tbody = document.getElementById('metrika-utm');
+                        if (utm.campaigns.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-text-muted py-4">Нет UTM-данных</td></tr>';
+                        } else {
+                            tbody.innerHTML = utm.campaigns.map(c =>
+                                `<tr class="border-b border-surface-border/50 hover:bg-primary/5">
+                                    <td class="py-1.5 pr-2 text-white">${c.campaign || '—'}</td>
+                                    <td class="py-1.5 pr-2">${c.source || '—'}</td>
+                                    <td class="py-1.5 pr-2 text-white font-medium">${c.term || '—'}</td>
+                                    <td class="py-1.5 pr-2">${c.visits}</td>
+                                    <td class="py-1.5 pr-2">${c.bounce_rate}%</td>
+                                    <td class="py-1.5">${c.avg_duration}с</td>
+                                </tr>`
+                            ).join('');
+                        }
+                    }
+                } else {
+                    document.getElementById('mk-status').textContent = '⚠️';
+                    document.getElementById('mk-status').className = 'text-lg font-bold text-amber-400';
+                    document.getElementById('metrika-sources').innerHTML = '<span class="text-amber-400">⚠️ API Метрики не настроен. Добавьте YANDEX_METRIKA_TOKEN в .env</span>';
+                    document.getElementById('metrika-search').innerHTML = '<span class="text-amber-400">⚠️ Нужен OAuth-токен Метрики</span>';
+                    document.getElementById('metrika-utm').innerHTML = '<tr><td colspan="6" class="text-amber-400 py-3">⚠️ Нужен OAuth-токен</td></tr>';
+                }
+
+                // === INTERNAL FUNNEL ===
                 document.getElementById('fn-total').textContent = funnelRes.total_visitors;
                 const findStep = (key) => (funnelRes.funnel.find(f => f.step === key) || {}).count || 0;
                 document.getElementById('fn-consent').textContent = findStep('consent');
@@ -1056,7 +1199,6 @@
                     complaint_generated: '#22c55e', recipients_selected: '#10b981',
                     complaint_sent: '#059669'
                 };
-
                 barsEl.innerHTML = funnelRes.funnel
                     .filter(f => f.count > 0)
                     .map(f => {

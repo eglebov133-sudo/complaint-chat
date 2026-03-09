@@ -35,6 +35,7 @@ files = [
     ('services/beget_service.py', '/opt/complaint-chat/services/beget_service.py'),
     ('services/yandex_direct_service.py', '/opt/complaint-chat/services/yandex_direct_service.py'),
     ('services/analytics_service.py', '/opt/complaint-chat/services/analytics_service.py'),
+    ('services/metrika_service.py', '/opt/complaint-chat/services/metrika_service.py'),
     ('data/__init__.py', '/opt/complaint-chat/data/__init__.py'),
     ('static/css/style.css', '/opt/complaint-chat/static/css/style.css'),
     ('static/js/chat.js', '/opt/complaint-chat/static/js/chat.js'),

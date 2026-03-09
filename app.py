@@ -998,9 +998,61 @@ def admin_visitor_detail(visitor_id):
     return jsonify({"events": events})
 
 
+# ==================== YANDEX METRIKA ADMIN API ====================
+
+from services.metrika_service import metrika_service
+
+@app.route('/api/admin/metrika/status')
+def admin_metrika_status():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    return jsonify({"configured": metrika_service.is_configured()})
+
+@app.route('/api/admin/metrika/summary')
+def admin_metrika_summary():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    try:
+        return jsonify(metrika_service.get_traffic_summary(
+            request.args.get('from', ''), request.args.get('to', '')))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/metrika/search')
+def admin_metrika_search():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    try:
+        return jsonify(metrika_service.get_search_phrases(
+            request.args.get('from', ''), request.args.get('to', '')))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/metrika/sources')
+def admin_metrika_sources():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    try:
+        return jsonify(metrika_service.get_traffic_sources(
+            request.args.get('from', ''), request.args.get('to', '')))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/metrika/utm')
+def admin_metrika_utm():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    try:
+        return jsonify(metrika_service.get_utm_campaigns(
+            request.args.get('from', ''), request.args.get('to', '')))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ==================== YANDEX DIRECT ADMIN API ====================
 
 from services.yandex_direct_service import yandex_direct_service
+
 
 
 @app.route('/api/admin/direct/status')
