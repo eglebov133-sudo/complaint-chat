@@ -42,20 +42,6 @@ class ComplaintChat {
         this.checkInitialPaymentStatus();
         this.loadState();
         this.applyChatProtection();
-        this.bindHeroChips();
-    }
-
-    /** Handle hero chip clicks — user picks a topic */
-    bindHeroChips() {
-        document.addEventListener('click', (e) => {
-            const chip = e.target.closest('.hero-chip');
-            if (!chip) return;
-            const text = chip.textContent.trim();
-            if (text) {
-                this.messageInput.value = text;
-                this.sendMessage();
-            }
-        });
     }
 
     /**
@@ -180,50 +166,41 @@ class ComplaintChat {
             const response = await fetch(endpoint);
             const data = await response.json();
 
-            // Hide welcome hero with animation
-            const hero = document.getElementById('welcome-hero');
-            if (hero) {
-                hero.classList.add('hiding');
-                setTimeout(() => hero.remove(), 300);
+            // Clear existing messages
+            this.messagesContainer.innerHTML = '';
+
+            // Render history
+            data.history.forEach(msg => {
+                this.renderMessage(msg.role, msg.content, false);
+            });
+
+            // Update step count for progress
+            this.stepCount = Math.floor(data.history.length / 2);
+            this.updateProgress();
+
+            // Get last assistant message for options
+            const lastAssistant = [...data.history].reverse().find(m => m.role === 'assistant');
+            if (lastAssistant) {
+                const inputType = lastAssistant.input_type || 'options';
+                if (inputType === 'sending_results' && data.data) {
+                    this.showInputArea(inputType, lastAssistant.options, '', {
+                        results: data.data.sending_results,
+                        complaint_text: data.data.complaint_text
+                    });
+                } else {
+                    this.showInputArea(inputType, lastAssistant.options);
+                }
             }
 
-            // Clear existing messages (hero already removed via animation)
-            setTimeout(() => {
-                this.messagesContainer.innerHTML = '';
+            // Show back button if we have history
+            this.updateBackButton(data.history.length > 2);
 
-                // Render history
-                data.history.forEach(msg => {
-                    this.renderMessage(msg.role, msg.content, false);
-                });
+            // Apply copy protection on complaint text in history for free users
+            if (!this.isPaid && data.history.some(m => m.role === 'assistant' && m.content && m.content.length > 500)) {
+                this.applyCopyProtection();
+            }
 
-                // Update step count for progress
-                this.stepCount = Math.floor(data.history.length / 2);
-                this.updateProgress();
-
-                // Get last assistant message for options
-                const lastAssistant = [...data.history].reverse().find(m => m.role === 'assistant');
-                if (lastAssistant) {
-                    const inputType = lastAssistant.input_type || 'options';
-                    if (inputType === 'sending_results' && data.data) {
-                        this.showInputArea(inputType, lastAssistant.options, '', {
-                            results: data.data.sending_results,
-                            complaint_text: data.data.complaint_text
-                        });
-                    } else {
-                        this.showInputArea(inputType, lastAssistant.options);
-                    }
-                }
-
-                // Show back button if we have history
-                this.updateBackButton(data.history.length > 2);
-
-                // Apply copy protection on complaint text in history for free users
-                if (!this.isPaid && data.history.some(m => m.role === 'assistant' && m.content && m.content.length > 500)) {
-                    this.applyCopyProtection();
-                }
-
-                this.scrollToBottom();
-            }, 300);
+            this.scrollToBottom();
         } catch (error) {
             console.error('Failed to load state:', error);
             this.showToast('Ошибка загрузки. Обновите страницу.', 'error');

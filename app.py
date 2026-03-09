@@ -46,6 +46,10 @@ def index():
     
     if need_init:
         state = DialogStateV2()
+        # Capture UTM params for personalization
+        utm_term = request.args.get('utm_term', '')
+        if utm_term:
+            state.data['utm_term'] = utm_term
         # Если пользователь авторизован — пропускаем регистрацию
         if session.get('user_email'):
             state.data['is_authenticated'] = True
@@ -219,6 +223,10 @@ def get_state():
     
     if need_init:
         state = DialogStateV2()
+        # Capture UTM params for personalization
+        utm_term = request.args.get('utm_term', '')
+        if utm_term:
+            state.data['utm_term'] = utm_term
         if session.get('user_email'):
             state.data['is_authenticated'] = True
             user = user_service.get_user(session['user_email'])
