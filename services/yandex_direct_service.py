@@ -155,6 +155,96 @@ class YandexDirectService:
         except Exception as e:
             return {"error": str(e)}
 
+    def get_search_queries(self, date_from=None, date_to=None):
+        """Search queries: what users typed -> which keyword matched"""
+        if not date_from:
+            date_from = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+        if not date_to:
+            date_to = datetime.now().strftime("%Y-%m-%d")
+
+        url = f"{self.base_url}reports"
+        headers = {
+            **self.headers,
+            "processingMode": "auto",
+            "returnMoneyInMicros": "false",
+            "skipReportHeader": "true",
+            "skipReportSummary": "true",
+        }
+        body = {
+            "params": {
+                "SelectionCriteria": {
+                    "DateFrom": date_from,
+                    "DateTo": date_to,
+                },
+                "FieldNames": [
+                    "Date", "Query", "CriterionType", "Criterion",
+                    "CampaignName", "Impressions", "Clicks", "Cost",
+                    "AvgCpc", "Bounces"
+                ],
+                "ReportName": f"sq_{date_from}_{date_to}_{datetime.now().timestamp():.0f}",
+                "ReportType": "SEARCH_QUERY_PERFORMANCE_REPORT",
+                "DateRangeType": "CUSTOM_DATE",
+                "Format": "TSV",
+                "IncludeVAT": "YES",
+            }
+        }
+
+        try:
+            resp = requests.post(url, json=body, headers=headers, timeout=60)
+
+            if resp.status_code in (201, 202):
+                return {"status": "building", "retry_after": 5}
+
+            if resp.status_code != 200:
+                return {"error": f"Report API error {resp.status_code}: {resp.text[:300]}"}
+
+            lines = resp.text.strip().split("\n")
+            if len(lines) < 2:
+                return {"queries": []}
+
+            header = lines[0].split("\t")
+            queries = []
+
+            type_names = {
+                "KEYWORD": "ключевик",
+                "AUTOTARGETING": "автотаргет",
+                "AUDIENCE_TARGET": "аудитория",
+                "DYNAMIC_TEXT_AD_TARGET": "динамич.",
+            }
+
+            for line in lines[1:]:
+                cols = line.split("\t")
+                if len(cols) < len(header):
+                    continue
+                row = dict(zip(header, cols))
+                clicks = _int(row.get("Clicks", "0"))
+                impressions = _int(row.get("Impressions", "0"))
+                queries.append({
+                    "date": row.get("Date", ""),
+                    "query": row.get("Query", ""),
+                    "criterion_type": type_names.get(
+                        row.get("CriterionType", ""), row.get("CriterionType", "")),
+                    "keyword": row.get("Criterion", ""),
+                    "campaign": row.get("CampaignName", ""),
+                    "impressions": impressions,
+                    "clicks": clicks,
+                    "cost": _float(row.get("Cost", "0")),
+                    "avg_cpc": _float(row.get("AvgCpc", "0")),
+                    "bounces": _int(row.get("Bounces", "0")),
+                    "bounce_rate": round(
+                        _int(row.get("Bounces", "0")) / clicks * 100, 1
+                    ) if clicks > 0 else 0,
+                })
+
+            # Sort by clicks desc
+            queries.sort(key=lambda x: x["clicks"], reverse=True)
+            return {"queries": queries, "total": len(queries)}
+
+        except requests.exceptions.Timeout:
+            return {"error": "Report API timeout"}
+        except Exception as e:
+            return {"error": str(e)}
+
     def suspend_campaign(self, campaign_id):
         """Pause a campaign"""
         return self._request("campaigns", "suspend", {

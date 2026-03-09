@@ -92,7 +92,7 @@ class MetrikaService:
         }
 
     def get_search_phrases(self, date_from: str = '', date_to: str = '', limit: int = 50) -> dict:
-        """Поисковые фразы, по которым приходили пользователи"""
+        """Ключевики (utm_term) по которым приходили пользователи"""
         if not date_from:
             date_from = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
         if not date_to:
@@ -100,7 +100,7 @@ class MetrikaService:
 
         data = self._request({
             'metrics': 'ym:s:visits,ym:s:bounceRate,ym:s:avgVisitDurationSeconds',
-            'dimensions': 'ym:s:lastSearchPhrase',
+            'dimensions': 'ym:s:lastUTMTerm',
             'date1': date_from,
             'date2': date_to,
             'sort': '-ym:s:visits',
@@ -112,7 +112,7 @@ class MetrikaService:
             d = item['dimensions'][0]
             m = item['metrics']
             phrase = d.get('name', '')
-            if not phrase or phrase == '(not set)':
+            if not phrase or phrase == '(not set)' or phrase is None:
                 continue
             phrases.append({
                 'phrase': phrase,
@@ -195,7 +195,7 @@ class MetrikaService:
         return {'campaigns': campaigns}
 
     def get_visits_detail(self, date_from: str = '', date_to: str = '', limit: int = 100) -> dict:
-        """Per-visit data: search phrase, our keyword, source, campaign, bounce, duration"""
+        """Per-visit data: keyword (utm_term), source, campaign, bounce, duration"""
         if not date_from:
             date_from = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
         if not date_to:
@@ -203,7 +203,7 @@ class MetrikaService:
 
         data = self._request({
             'metrics': 'ym:s:visits,ym:s:bounceRate,ym:s:avgVisitDurationSeconds,ym:s:pageDepth',
-            'dimensions': 'ym:s:date,ym:s:lastSearchPhrase,ym:s:lastUTMTerm,ym:s:lastTrafficSource,ym:s:lastUTMCampaign,ym:s:lastUTMMedium',
+            'dimensions': 'ym:s:date,ym:s:lastUTMTerm,ym:s:lastTrafficSource,ym:s:lastUTMCampaign,ym:s:lastUTMMedium',
             'date1': date_from,
             'date2': date_to,
             'sort': '-ym:s:date,-ym:s:visits',
@@ -221,24 +221,32 @@ class MetrikaService:
         for item in data.get('data', []):
             dims = item['dimensions']
             m = item['metrics']
-            src_id = dims[3].get('id', dims[3].get('name', ''))
-            medium = dims[5].get('name', '')
+            src_id = dims[2].get('id', dims[2].get('name', ''))
+            medium = dims[4].get('name', '') or ''
+            keyword = dims[1].get('name', '') or ''
             if medium in ('cpc', 'search'):
-                source_label = '🔍 Поиск (Директ)'
+                source_label = '🔍 Поиск'
             elif medium in ('display', 'cpm', 'banner'):
                 source_label = '📢 РСЯ'
             elif src_id == 'ad':
                 source_label = '📢 Реклама'
             else:
-                source_label = source_names.get(src_id, dims[3].get('name', src_id))
+                source_label = source_names.get(src_id, dims[2].get('name', src_id))
+            # Classify keyword type
+            if keyword == '---autotargeting':
+                kw_type = 'автотаргет'
+            elif keyword:
+                kw_type = 'ключевик'
+            else:
+                kw_type = ''
             visits.append({
                 'date': dims[0].get('name', ''),
-                'search_phrase': dims[1].get('name', ''),
-                'keyword': dims[2].get('name', ''),
+                'keyword': keyword,
+                'keyword_type': kw_type,
                 'source': source_label,
                 'source_id': src_id,
                 'medium': medium,
-                'campaign': dims[4].get('name', ''),
+                'campaign': dims[3].get('name', ''),
                 'visits': int(m[0]),
                 'bounce_rate': round(m[1], 1),
                 'avg_duration': int(m[2]),

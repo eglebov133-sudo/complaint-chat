@@ -472,7 +472,7 @@
                             <div id="metrika-sources" class="text-xs text-text-muted">Загрузка...</div>
                         </div>
                         <div class="stat-card">
-                            <h3 class="text-sm font-semibold mb-3">🔍 Поисковые запросы</h3>
+                            <h3 class="text-sm font-semibold mb-3">🔍 Ключевики (utm_term)</h3>
                             <div id="metrika-search" class="text-xs text-text-muted max-h-[300px] overflow-y-auto">
                                 Загрузка...</div>
                         </div>
@@ -501,20 +501,21 @@
 
                 <!-- Metrika Visitors Detail -->
                 <div class="stat-card mb-6">
-                    <h3 class="text-sm font-semibold mb-3">👤 Посетители — поисковый запрос → наш ключевик</h3>
-                    <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <h3 class="text-sm font-semibold mb-3">👤 Посетители — поисковый запрос → наш ключевик (Яндекс
+                        Директ)</h3>
+                    <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                         <table class="w-full text-xs">
                             <thead class="sticky top-0 bg-[#181b25]">
                                 <tr class="text-left text-text-muted border-b border-surface-border">
                                     <th class="py-2 pr-2">Дата</th>
                                     <th class="py-2 pr-2">Поисковый запрос</th>
                                     <th class="py-2 pr-2">Наш ключевик</th>
-                                    <th class="py-2 pr-2">Источник</th>
+                                    <th class="py-2 pr-2">Тип</th>
                                     <th class="py-2 pr-2">Кампания</th>
-                                    <th class="py-2 pr-2">Визиты</th>
+                                    <th class="py-2 pr-2">Показы</th>
+                                    <th class="py-2 pr-2">Клики</th>
                                     <th class="py-2 pr-2">Отказы</th>
-                                    <th class="py-2 pr-2">Ср. время</th>
-                                    <th class="py-2">Глубина</th>
+                                    <th class="py-2">Расход</th>
                                 </tr>
                             </thead>
                             <tbody id="metrika-visits"></tbody>
@@ -1199,31 +1200,35 @@
                         }
                     }
 
-                    // Per-visit search data
-                    const mkVisits = await fetch('/api/admin/metrika/visits').then(r => r.json()).catch(() => null);
-                    if (mkVisits && mkVisits.visits) {
+                    // Per-visit search data from Yandex Direct
+                    const sqData = await fetch('/api/admin/direct/search_queries').then(r => r.json()).catch(() => null);
+                    if (sqData && sqData.queries) {
                         const vtbody = document.getElementById('metrika-visits');
-                        if (mkVisits.visits.length === 0) {
-                            vtbody.innerHTML = '<tr><td colspan="9" class="text-center text-text-muted py-4">Нет данных о визитах</td></tr>';
+                        if (sqData.queries.length === 0) {
+                            vtbody.innerHTML = '<tr><td colspan="9" class="text-center text-text-muted py-4">Нет данных</td></tr>';
                         } else {
-                            vtbody.innerHTML = mkVisits.visits.map(v => {
-                                const phrase = v.search_phrase || '<span class="text-text-muted">—</span>';
-                                const kw = v.keyword || '<span class="text-text-muted">—</span>';
-                                const bounceColor = v.bounce_rate > 50 ? 'text-red-400' : v.bounce_rate > 30 ? 'text-amber-400' : 'text-green-400';
-                                const durColor = v.avg_duration < 15 ? 'text-red-400' : v.avg_duration < 60 ? 'text-amber-400' : 'text-green-400';
+                            vtbody.innerHTML = sqData.queries.map(q => {
+                                const typeBadge = q.criterion_type === 'автотаргет'
+                                    ? '<span class="badge" style="background:rgba(249,115,22,0.15);color:#f97316">авто</span>'
+                                    : q.criterion_type === 'ключевик'
+                                        ? '<span class="badge badge-blue">ключ</span>'
+                                        : `<span class="badge badge-gray">${q.criterion_type}</span>`;
+                                const bounceColor = q.bounce_rate > 50 ? 'text-red-400' : q.bounce_rate > 30 ? 'text-amber-400' : 'text-green-400';
                                 return `<tr class="border-b border-surface-border/50 hover:bg-primary/5">
-                                    <td class="py-1.5 pr-2 whitespace-nowrap">${v.date}</td>
-                                    <td class="py-1.5 pr-2 text-white font-medium max-w-[200px] truncate" title="${v.search_phrase || ''}">${phrase}</td>
-                                    <td class="py-1.5 pr-2 text-primary max-w-[180px] truncate" title="${v.keyword || ''}">${kw}</td>
-                                    <td class="py-1.5 pr-2 whitespace-nowrap">${v.source || '—'}</td>
-                                    <td class="py-1.5 pr-2 text-text-muted max-w-[120px] truncate" title="${v.campaign || ''}">${v.campaign || '—'}</td>
-                                    <td class="py-1.5 pr-2">${v.visits}</td>
-                                    <td class="py-1.5 pr-2 ${bounceColor}">${v.bounce_rate}%</td>
-                                    <td class="py-1.5 pr-2 ${durColor}">${v.avg_duration}с</td>
-                                    <td class="py-1.5">${v.depth}</td>
+                                    <td class="py-1.5 pr-2 whitespace-nowrap">${q.date}</td>
+                                    <td class="py-1.5 pr-2 text-white font-medium max-w-[220px] truncate" title="${q.query}">${q.query || '—'}</td>
+                                    <td class="py-1.5 pr-2 text-primary max-w-[180px] truncate" title="${q.keyword}">${q.keyword || '—'}</td>
+                                    <td class="py-1.5 pr-2">${typeBadge}</td>
+                                    <td class="py-1.5 pr-2 text-text-muted max-w-[120px] truncate" title="${q.campaign}">${q.campaign || '—'}</td>
+                                    <td class="py-1.5 pr-2">${q.impressions}</td>
+                                    <td class="py-1.5 pr-2">${q.clicks}</td>
+                                    <td class="py-1.5 pr-2 ${bounceColor}">${q.bounces} (${q.bounce_rate}%)</td>
+                                    <td class="py-1.5">${q.cost}₽</td>
                                 </tr>`;
                             }).join('');
                         }
+                    } else if (sqData && sqData.error) {
+                        document.getElementById('metrika-visits').innerHTML = `<tr><td colspan="9" class="text-red-400 py-3">${sqData.error}</td></tr>`;
                     }
                 } else {
                     document.getElementById('mk-status').textContent = '⚠️';

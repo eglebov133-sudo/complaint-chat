@@ -1076,6 +1076,17 @@ def admin_direct_status():
         "sandbox": yandex_direct_service.use_sandbox,
     })
 
+@app.route('/api/admin/direct/search_queries')
+def admin_direct_search_queries():
+    """Search queries from Yandex Direct"""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    try:
+        return jsonify(yandex_direct_service.get_search_queries(
+            request.args.get('from', ''), request.args.get('to', '')))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/admin/direct/campaigns')
 def admin_direct_campaigns():
     """Get all campaigns"""
