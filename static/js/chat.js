@@ -300,6 +300,18 @@ class ComplaintChat {
             // Update back button
             this.updateBackButton(data.can_go_back !== false);
 
+            // Yandex Metrika goals
+            if (window.ym && data.step) {
+                const goalMap = {
+                    'registration': null, 'category': 'registration_complete',
+                    'quiz': 'category_selected', 'preview': 'complaint_generated',
+                    'recipients': 'recipients_opened', 'sending': 'recipients_selected'
+                };
+                const goal = goalMap[data.step];
+                if (goal) ym(106967638, 'reachGoal', goal);
+                if (data.input_type === 'sending_results') ym(106967638, 'reachGoal', 'complaint_sent');
+            }
+
         } catch (error) {
             this.showTyping(false);
             this.showToast(error.message, 'error');

@@ -13,6 +13,7 @@ from services.orchestrator import orchestrator, FlowStep
 from services.dadata_service import dadata_service
 from services.payment_service import payment_service
 from services.user_service import user_service
+from services.analytics_service import analytics_service
 from functools import wraps
 
 # Создаём приложение
@@ -48,8 +49,19 @@ def index():
         state = DialogStateV2()
         # Capture UTM params for personalization
         utm_term = request.args.get('utm_term', '')
+        utm_data = {
+            'utm_term': request.args.get('utm_term', ''),
+            'utm_source': request.args.get('utm_source', ''),
+            'utm_campaign': request.args.get('utm_campaign', ''),
+        }
         if utm_term:
             state.data['utm_term'] = utm_term
+        state.data['utm_data'] = utm_data
+        # Analytics: log visit
+        sid = session.sid if hasattr(session, 'sid') else id(session)
+        analytics_service.log_event(str(sid), 'visit', '', utm_data,
+                                    ip=request.remote_addr or '',
+                                    user_agent=request.headers.get('User-Agent', ''))
         # Если пользователь авторизован — пропускаем регистрацию
         if session.get('user_email'):
             state.data['is_authenticated'] = True
@@ -562,7 +574,8 @@ def chat():
             state.data["recipient_options"] = response["options"]
         
         # Обновляем шаг
-        state.step = response.get("step", state.step)
+        new_step = response.get("step", state.step)
+        state.step = new_step
         
         # Добавляем ответ в историю
         state.add_message("assistant", response["message"], response.get("options"), response.get("input_type", "options"))
@@ -570,6 +583,55 @@ def chat():
         # Сохраняем состояние
         session['dialog_state'] = state.to_dict()
         session.modified = True
+        
+        # === ANALYTICS: log funnel step ===
+        try:
+            sid = session.sid if hasattr(session, 'sid') else str(id(session))
+            utm_data = state.data.get('utm_data', {})
+            ip = request.remote_addr or ''
+            ua = request.headers.get('User-Agent', '')
+            
+            # Map orchestrator steps to funnel steps
+            if current_step == 'registration':
+                reg = state.data.get('registration', {})
+                if user_input == 'consent_accept':
+                    analytics_service.log_event(sid, 'consent', '', utm_data, ip, ua)
+                elif reg.get('consent_given'):
+                    # Determine sub-step based on what was just filled
+                    if not reg.get('user_type') or user_input in ('individual', 'ip', 'organization'):
+                        analytics_service.log_event(sid, 'reg_user_type', user_input, utm_data, ip, ua)
+                    elif reg.get('fio') and not reg.get('address'):
+                        analytics_service.log_event(sid, 'reg_fio', '', utm_data, ip, ua)
+                    elif reg.get('address') and not reg.get('phone'):
+                        analytics_service.log_event(sid, 'reg_address', '', utm_data, ip, ua)
+                    elif reg.get('phone') and not reg.get('email'):
+                        analytics_service.log_event(sid, 'reg_phone', '', utm_data, ip, ua)
+                    elif reg.get('email') and not reg.get('password'):
+                        analytics_service.log_event(sid, 'reg_email', '', utm_data, ip, ua)
+                    elif reg.get('password'):
+                        analytics_service.log_event(sid, 'reg_password', '', utm_data, ip, ua)
+            
+            if new_step == 'category' and current_step != 'category':
+                analytics_service.log_event(sid, 'category', state.data.get('category', ''), utm_data, ip, ua)
+            
+            if current_step == 'category' and new_step == 'quiz':
+                analytics_service.log_event(sid, 'category', state.data.get('category', ''), utm_data, ip, ua)
+            
+            if current_step == 'quiz':
+                q_num = len(state.qa_pairs)
+                q_key = f'quiz_q{min(q_num, 5)}'
+                analytics_service.log_event(sid, q_key, f'q{q_num}', utm_data, ip, ua)
+            
+            if new_step == 'preview' and response.get('complaint_text'):
+                analytics_service.log_event(sid, 'complaint_generated', '', utm_data, ip, ua)
+            
+            if new_step == 'recipients':
+                analytics_service.log_event(sid, 'recipients_selected', '', utm_data, ip, ua)
+            
+            if response.get('input_type') == 'sending_results':
+                analytics_service.log_event(sid, 'complaint_sent', '', utm_data, ip, ua)
+        except Exception as e:
+            print(f'[ANALYTICS] Error: {e}')
         
         # === ТРЕКИНГ СОБЫТИЙ ВОРОНКИ ===
         email_user = session.get('user_email')
@@ -895,9 +957,51 @@ def admin_seed_test():
     return jsonify({"created": created, "total": len(users)})
 
 
+# ==================== ANALYTICS ADMIN API ====================
+
+@app.route('/api/admin/funnel')
+def admin_funnel():
+    """Aggregated funnel data"""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    date_from = request.args.get('from', '')
+    date_to = request.args.get('to', '')
+    utm = request.args.get('utm', '')
+    return jsonify(analytics_service.get_funnel(
+        date_from=date_from or None,
+        date_to=date_to or None,
+        utm_filter=utm or None
+    ))
+
+@app.route('/api/admin/visitors')
+def admin_visitors():
+    """Paginated visitor list"""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    page = int(request.args.get('page', 1))
+    utm = request.args.get('utm', '')
+    date_from = request.args.get('from', '')
+    date_to = request.args.get('to', '')
+    return jsonify(analytics_service.get_visitors(
+        page=page,
+        date_from=date_from or None,
+        date_to=date_to or None,
+        utm_filter=utm or None
+    ))
+
+@app.route('/api/admin/visitor/<visitor_id>')
+def admin_visitor_detail(visitor_id):
+    """Event timeline for a specific visitor"""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Forbidden"}), 403
+    events = analytics_service.get_visitor_events(visitor_id)
+    return jsonify({"events": events})
+
+
 # ==================== YANDEX DIRECT ADMIN API ====================
 
 from services.yandex_direct_service import yandex_direct_service
+
 
 @app.route('/api/admin/direct/status')
 def admin_direct_status():

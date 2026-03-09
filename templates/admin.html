@@ -300,7 +300,8 @@
     <!-- Tab Navigation -->
     <div class="tab-nav">
         <button class="tab-btn active" onclick="switchTab('users')">👥 Пользователи</button>
-        <button class="tab-btn" onclick="switchTab('direct')">📊 Яндекс Директ</button>
+        <button class="tab-btn" onclick="switchTab('funnel')">📊 Воронка</button>
+        <button class="tab-btn" onclick="switchTab('direct')">📢 Яндекс Директ</button>
     </div>
 
     <!-- TAB: Users -->
@@ -422,6 +423,64 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TAB: Funnel -->
+    <div id="tab-funnel" class="tab-panel">
+        <main class="max-w-6xl mx-auto px-4 py-6">
+            <div id="funnel-loading" class="text-center text-text-muted py-12">Загрузка воронки...</div>
+            <div id="funnel-content" style="display:none">
+                <!-- Funnel Stats -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <div class="stat-card">
+                        <div id="fn-total" class="text-2xl font-bold">0</div>
+                        <div class="text-xs text-text-muted mt-1">Визитов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="fn-consent" class="text-2xl font-bold">0</div>
+                        <div class="text-xs text-text-muted mt-1">Согласие ПД</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="fn-complaint" class="text-2xl font-bold">0</div>
+                        <div class="text-xs text-text-muted mt-1">Жалоба готова</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="fn-sent" class="text-2xl font-bold">0</div>
+                        <div class="text-xs text-text-muted mt-1">Отправлено</div>
+                    </div>
+                </div>
+
+                <!-- Funnel Bars -->
+                <div class="stat-card mb-6">
+                    <h3 class="text-sm font-semibold mb-4">Воронка конверсии</h3>
+                    <div id="funnel-bars"></div>
+                </div>
+
+                <!-- Visitors Table -->
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold">Посетители</h3>
+                        <button onclick="loadFunnel()" class="text-xs text-primary hover:text-white transition">🔄
+                            Обновить</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="text-left text-text-muted border-b border-surface-border">
+                                    <th class="py-2 pr-3">Время</th>
+                                    <th class="py-2 pr-3">UTM</th>
+                                    <th class="py-2 pr-3">Последний шаг</th>
+                                    <th class="py-2 pr-3">Длительность</th>
+                                    <th class="py-2">Шагов</th>
+                                </tr>
+                            </thead>
+                            <tbody id="funnel-visitors"></tbody>
+                        </table>
+                    </div>
+                    <div id="funnel-pagination" class="flex gap-2 mt-3 justify-center"></div>
                 </div>
             </div>
         </main>
@@ -782,6 +841,7 @@
             document.getElementById('tab-' + tab).classList.add('active');
             event.target.classList.add('active');
             if (tab === 'direct' && !window._directLoaded) loadDirect();
+            if (tab === 'funnel' && !window._funnelLoaded) loadFunnel();
         }
 
         function switchSubTab(sub) {
@@ -960,6 +1020,152 @@
                 }).join('');
             } catch (e) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-6">${e.message}</td></tr>`;
+            }
+        }
+
+        // ==================== FUNNEL ANALYTICS ====================
+        window._funnelLoaded = false;
+
+        async function loadFunnel() {
+            try {
+                const [funnelRes, visitorsRes] = await Promise.all([
+                    fetch('/api/admin/funnel').then(r => r.json()),
+                    fetch('/api/admin/visitors').then(r => r.json())
+                ]);
+
+                document.getElementById('funnel-loading').style.display = 'none';
+                document.getElementById('funnel-content').style.display = 'block';
+                window._funnelLoaded = true;
+
+                // Stats
+                document.getElementById('fn-total').textContent = funnelRes.total_visitors;
+                const findStep = (key) => (funnelRes.funnel.find(f => f.step === key) || {}).count || 0;
+                document.getElementById('fn-consent').textContent = findStep('consent');
+                document.getElementById('fn-complaint').textContent = findStep('complaint_generated');
+                document.getElementById('fn-sent').textContent = findStep('complaint_sent');
+
+                // Funnel bars
+                const barsEl = document.getElementById('funnel-bars');
+                const maxCount = funnelRes.total_visitors || 1;
+                const colors = {
+                    visit: '#3b82f6', consent: '#6366f1',
+                    reg_user_type: '#8b5cf6', reg_fio: '#a78bfa', reg_address: '#a78bfa',
+                    reg_phone: '#a78bfa', reg_email: '#a78bfa', reg_password: '#a78bfa',
+                    category: '#f59e0b', quiz_q1: '#f97316', quiz_q2: '#f97316',
+                    quiz_q3: '#f97316', quiz_q4: '#f97316', quiz_q5: '#f97316',
+                    complaint_generated: '#22c55e', recipients_selected: '#10b981',
+                    complaint_sent: '#059669'
+                };
+
+                barsEl.innerHTML = funnelRes.funnel
+                    .filter(f => f.count > 0)
+                    .map(f => {
+                        const w = Math.max(2, (f.count / maxCount) * 100);
+                        const c = colors[f.step] || '#3d5a80';
+                        return `<div class="flex items-center gap-3 mb-2">
+                            <div class="w-36 text-xs text-text-muted text-right shrink-0">${f.name}</div>
+                            <div class="flex-1 h-6 bg-[#1e2230] rounded overflow-hidden relative">
+                                <div class="h-full rounded" style="width:${w}%;background:${c};transition:width 0.5s"></div>
+                                <span class="absolute inset-0 flex items-center px-2 text-[11px] font-medium">${f.count} <span class="text-text-muted ml-1">(${f.pct}%)</span></span>
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                // Visitors table
+                renderVisitors(visitorsRes);
+            } catch (e) {
+                document.getElementById('funnel-loading').textContent = 'Ошибка: ' + e.message;
+            }
+        }
+
+        function renderVisitors(data) {
+            const tbody = document.getElementById('funnel-visitors');
+            if (!data.visitors || data.visitors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-text-muted py-6">Нет данных</td></tr>';
+                return;
+            }
+
+            const stepColors = {
+                visit: 'badge-blue', consent: 'badge-blue',
+                reg_user_type: 'badge-gray', reg_fio: 'badge-gray', reg_address: 'badge-gray',
+                reg_phone: 'badge-gray', reg_email: 'badge-gray', reg_password: 'badge-gray',
+                category: 'badge-blue', quiz_q1: 'badge-blue', quiz_q2: 'badge-blue',
+                quiz_q3: 'badge-blue', quiz_q4: 'badge-blue', quiz_q5: 'badge-blue',
+                complaint_generated: 'badge-green', recipients_selected: 'badge-green',
+                complaint_sent: 'badge-green'
+            };
+
+            tbody.innerHTML = data.visitors.map(v => {
+                const time = v.first_seen ? new Date(v.first_seen).toLocaleString('ru') : '—';
+                const utm = v.utm_term || v.utm_source || '—';
+                const badge = stepColors[v.last_step] || 'badge-gray';
+                return `<tr class="user-row border-b border-surface-border cursor-pointer" onclick="showVisitorDetail('${v.id}')">
+                    <td class="py-2 pr-3">${time}</td>
+                    <td class="py-2 pr-3 text-text-muted max-w-[150px] truncate" title="${v.utm_term}">${utm}</td>
+                    <td class="py-2 pr-3"><span class="badge ${badge}">${v.last_step_name || v.last_step}</span></td>
+                    <td class="py-2 pr-3">${v.duration || '—'}</td>
+                    <td class="py-2">${v.step_count || 0}</td>
+                </tr>`;
+            }).join('');
+
+            // Pagination
+            const pagEl = document.getElementById('funnel-pagination');
+            if (data.pages > 1) {
+                let html = '';
+                for (let i = 1; i <= data.pages; i++) {
+                    const cls = i === data.page ? 'bg-primary text-white' : 'bg-element-dark text-text-muted hover:text-white';
+                    html += `<button class="px-2 py-1 rounded text-xs ${cls}" onclick="loadVisitorsPage(${i})">${i}</button>`;
+                }
+                pagEl.innerHTML = html;
+            } else {
+                pagEl.innerHTML = '';
+            }
+        }
+
+        async function loadVisitorsPage(page) {
+            try {
+                const data = await fetch('/api/admin/visitors?page=' + page).then(r => r.json());
+                renderVisitors(data);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function showVisitorDetail(vid) {
+            try {
+                const data = await fetch('/api/admin/visitor/' + vid).then(r => r.json());
+                const events = data.events || [];
+                let html = `<h2 class="text-lg font-bold mb-4">Посетитель: ${vid.substring(0, 12)}…</h2>`;
+                if (events.length === 0) {
+                    html += '<p class="text-text-muted">Нет событий</p>';
+                } else {
+                    html += '<div class="max-h-[60vh] overflow-y-auto">';
+                    events.forEach((ev, i) => {
+                        const t = new Date(ev.ts).toLocaleTimeString('ru');
+                        const stepName = {
+                            visit: '🔵 Визит', consent: '✅ Согласие ПД',
+                            reg_user_type: '👤 Тип', reg_fio: '✏️ ФИО', reg_address: '📍 Адрес',
+                            reg_phone: '📱 Телефон', reg_email: '📧 Email', reg_password: '🔑 Пароль',
+                            category: '📂 Категория',
+                            quiz_q1: '❓ Вопрос 1', quiz_q2: '❓ Вопрос 2', quiz_q3: '❓ Вопрос 3',
+                            quiz_q4: '❓ Вопрос 4', quiz_q5: '❓ Вопрос 5+',
+                            complaint_generated: '📄 Жалоба готова',
+                            recipients_selected: '📬 Адресаты',
+                            complaint_sent: '🚀 Отправлено'
+                        }[ev.step] || ev.step;
+                        const sub = ev.sub ? ` <span class="text-text-muted">(${ev.sub})</span>` : '';
+                        const utm = ev.utm_term ? ` <span class="text-xs text-text-muted">utm: ${ev.utm_term}</span>` : '';
+                        html += `<div class="flex gap-3 py-2 ${i < events.length - 1 ? 'border-b border-surface-border' : ''}">
+                            <span class="text-text-muted shrink-0 w-16">${t}</span>
+                            <span>${stepName}${sub}${i === 0 ? utm : ''}</span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                document.getElementById('modal-content').innerHTML = html;
+                document.getElementById('modal-overlay').classList.add('active');
+            } catch (e) {
+                console.error(e);
             }
         }
     </script>
