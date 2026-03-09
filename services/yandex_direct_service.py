@@ -190,13 +190,20 @@ class YandexDirectService:
         }
 
         try:
-            resp = requests.post(url, json=body, headers=headers, timeout=60)
+            import time as _time
+            resp = None
+            for _attempt in range(6):
+                resp = requests.post(url, json=body, headers=headers, timeout=60)
+                if resp.status_code == 200:
+                    break
+                elif resp.status_code in (201, 202):
+                    wait = int(resp.headers.get('retryIn', 2))
+                    _time.sleep(min(wait + 1, 15))
+                else:
+                    return {"error": f"Report API error {resp.status_code}: {resp.text[:300]}"}
 
-            if resp.status_code in (201, 202):
-                return {"status": "building", "retry_after": 5}
-
-            if resp.status_code != 200:
-                return {"error": f"Report API error {resp.status_code}: {resp.text[:300]}"}
+            if not resp or resp.status_code != 200:
+                return {"error": "Report is still building, try again later"}
 
             lines = resp.text.strip().split("\n")
             if len(lines) < 2:
