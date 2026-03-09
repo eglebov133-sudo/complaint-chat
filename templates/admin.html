@@ -549,30 +549,7 @@
                 <h3 class="text-sm font-semibold mb-4">Конверсия по шагам</h3>
                 <div id="funnel-bars"></div>
             </div>
-            <div class="stat-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold">Посетители</h3>
-                    <button onclick="loadFunnel()" class="text-xs text-primary hover:text-white transition">🔄
-                        Обновить</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs">
-                        <thead>
-                            <tr class="text-left text-text-muted border-b border-surface-border">
-                                <th class="py-2 pr-2">Время</th>
-                                <th class="py-2 pr-2">Поисковый запрос</th>
-                                <th class="py-2 pr-2">Источник</th>
-                                <th class="py-2 pr-2">Кампания</th>
-                                <th class="py-2 pr-2">Шаг</th>
-                                <th class="py-2 pr-2">Время на сайте</th>
-                                <th class="py-2">Шагов</th>
-                            </tr>
-                        </thead>
-                        <tbody id="funnel-visitors"></tbody>
-                    </table>
-                </div>
-                <div id="funnel-pagination" class="flex gap-2 mt-3 justify-center"></div>
-            </div>
+    </div>
     </div>
     </main>
     </div>
@@ -1120,9 +1097,8 @@
         async function loadFunnel() {
             try {
                 // Fetch internal funnel + visitors + Metrika data in parallel
-                const [funnelRes, visitorsRes, mkStatus] = await Promise.all([
+                const [funnelRes, mkStatus] = await Promise.all([
                     fetch('/api/admin/funnel').then(r => r.json()),
-                    fetch('/api/admin/visitors').then(r => r.json()),
                     fetch('/api/admin/metrika/status').then(r => r.json()).catch(() => ({ configured: false }))
                 ]);
 
@@ -1272,116 +1248,8 @@
                         </div>`;
                     }).join('');
 
-                // Visitors table
-                renderVisitors(visitorsRes);
             } catch (e) {
                 document.getElementById('funnel-loading').textContent = 'Ошибка: ' + e.message;
-            }
-        }
-
-        function renderVisitors(data) {
-            const tbody = document.getElementById('funnel-visitors');
-            if (!data.visitors || data.visitors.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-muted py-6">Нет данных</td></tr>';
-                return;
-            }
-
-            const stepColors = {
-                visit: 'badge-blue', consent: 'badge-blue',
-                reg_user_type: 'badge-gray', reg_fio: 'badge-gray', reg_address: 'badge-gray',
-                reg_phone: 'badge-gray', reg_email: 'badge-gray', reg_password: 'badge-gray',
-                category: 'badge-blue', quiz_q1: 'badge-blue', quiz_q2: 'badge-blue',
-                quiz_q3: 'badge-blue', quiz_q4: 'badge-blue', quiz_q5: 'badge-blue',
-                complaint_generated: 'badge-green', recipients_selected: 'badge-green',
-                complaint_sent: 'badge-green'
-            };
-
-            // Source type from utm_medium
-            function getSourceLabel(v) {
-                const m = (v.utm_medium || '').toLowerCase();
-                const s = (v.utm_source || '').toLowerCase();
-                if (m === 'cpc' || m === 'search') return '<span class="badge badge-blue">🔍 Поиск</span>';
-                if (m === 'display' || m === 'cpm' || m === 'banner') return '<span class="badge" style="background:rgba(249,115,22,0.15);color:#f97316">📢 РСЯ</span>';
-                if (s === 'yandex' || s === 'google') return '<span class="badge badge-blue">🔍 Поиск</span>';
-                if (s === 'direct') return '<span class="badge badge-gray">🔗 Прямой</span>';
-                if (s) return '<span class="badge badge-gray">' + s + '</span>';
-                return '<span class="badge badge-gray">—</span>';
-            }
-
-            tbody.innerHTML = data.visitors.map(v => {
-                const time = v.first_seen ? new Date(v.first_seen).toLocaleString('ru') : '—';
-                const query = v.utm_term ? `<span class="text-white" title="${v.utm_term}">${v.utm_term}</span>` : '<span class="text-text-muted">—</span>';
-                const badge = stepColors[v.last_step] || 'badge-gray';
-                const campaign = v.utm_campaign || '—';
-                return `<tr class="user-row border-b border-surface-border cursor-pointer" onclick="showVisitorDetail('${v.id}')">
-                    <td class="py-2 pr-2 whitespace-nowrap">${time}</td>
-                    <td class="py-2 pr-2 max-w-[200px] truncate">${query}</td>
-                    <td class="py-2 pr-2">${getSourceLabel(v)}</td>
-                    <td class="py-2 pr-2 text-text-muted max-w-[120px] truncate" title="${campaign}">${campaign}</td>
-                    <td class="py-2 pr-2"><span class="badge ${badge}">${v.last_step_name || v.last_step}</span></td>
-                    <td class="py-2 pr-2">${v.duration || '—'}</td>
-                    <td class="py-2">${v.step_count || 0}</td>
-                </tr>`;
-            }).join('');
-
-            // Pagination
-            const pagEl = document.getElementById('funnel-pagination');
-            if (data.pages > 1) {
-                let html = '';
-                for (let i = 1; i <= data.pages; i++) {
-                    const cls = i === data.page ? 'bg-primary text-white' : 'bg-element-dark text-text-muted hover:text-white';
-                    html += `<button class="px-2 py-1 rounded text-xs ${cls}" onclick="loadVisitorsPage(${i})">${i}</button>`;
-                }
-                pagEl.innerHTML = html;
-            } else {
-                pagEl.innerHTML = '';
-            }
-        }
-
-        async function loadVisitorsPage(page) {
-            try {
-                const data = await fetch('/api/admin/visitors?page=' + page).then(r => r.json());
-                renderVisitors(data);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        async function showVisitorDetail(vid) {
-            try {
-                const data = await fetch('/api/admin/visitor/' + vid).then(r => r.json());
-                const events = data.events || [];
-                let html = `<h2 class="text-lg font-bold mb-4">Посетитель: ${vid.substring(0, 12)}…</h2>`;
-                if (events.length === 0) {
-                    html += '<p class="text-text-muted">Нет событий</p>';
-                } else {
-                    html += '<div class="max-h-[60vh] overflow-y-auto">';
-                    events.forEach((ev, i) => {
-                        const t = new Date(ev.ts).toLocaleTimeString('ru');
-                        const stepName = {
-                            visit: '🔵 Визит', consent: '✅ Согласие ПД',
-                            reg_user_type: '👤 Тип', reg_fio: '✏️ ФИО', reg_address: '📍 Адрес',
-                            reg_phone: '📱 Телефон', reg_email: '📧 Email', reg_password: '🔑 Пароль',
-                            category: '📂 Категория',
-                            quiz_q1: '❓ Вопрос 1', quiz_q2: '❓ Вопрос 2', quiz_q3: '❓ Вопрос 3',
-                            quiz_q4: '❓ Вопрос 4', quiz_q5: '❓ Вопрос 5+',
-                            complaint_generated: '📄 Жалоба готова',
-                            recipients_selected: '📬 Адресаты',
-                            complaint_sent: '🚀 Отправлено'
-                        }[ev.step] || ev.step;
-                        const sub = ev.sub ? ` <span class="text-text-muted">(${ev.sub})</span>` : '';
-                        const utm = ev.utm_term ? ` <span class="text-xs text-text-muted">utm: ${ev.utm_term}</span>` : '';
-                        html += `<div class="flex gap-3 py-2 ${i < events.length - 1 ? 'border-b border-surface-border' : ''}">
-                            <span class="text-text-muted shrink-0 w-16">${t}</span>
-                            <span>${stepName}${sub}${i === 0 ? utm : ''}</span>
-                        </div>`;
-                    });
-                    html += '</div>';
-                }
-                document.getElementById('modal-content').innerHTML = html;
-                document.getElementById('modal-overlay').classList.add('active');
-            } catch (e) {
-                console.error(e);
             }
         }
     </script>
