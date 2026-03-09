@@ -267,6 +267,127 @@
         .dark .chat-bg {
             background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.015) 1px, transparent 0);
         }
+
+        /* Welcome Hero */
+        #welcome-hero {
+            animation: heroFadeIn 0.4s ease-out;
+        }
+
+        @keyframes heroFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #welcome-hero.hiding {
+            animation: heroFadeOut 0.3s ease-in forwards;
+        }
+
+        @keyframes heroFadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-8px);
+                height: 0;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+        }
+
+        .hero-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .hero-step-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .hero-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid;
+        }
+
+        .hero-chip:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Light theme chips */
+        .hero-chip {
+            background: white;
+            border-color: #e2e8f0;
+            color: #334155;
+        }
+
+        .hero-chip:hover {
+            border-color: #3d5a80;
+            color: #3d5a80;
+            background: rgba(61, 90, 128, 0.04);
+        }
+
+        /* Dark theme chips */
+        .dark .hero-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+
+        .dark .hero-chip:hover {
+            border-color: #5b7faa;
+            color: #5b7faa;
+            background: rgba(91, 127, 170, 0.08);
+        }
+
+        .hero-cta-text {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid;
+        }
+
+        .hero-cta-text {
+            color: #94a3b8;
+            border-color: #e2e8f0;
+        }
+
+        .dark .hero-cta-text {
+            color: #475569;
+            border-color: rgba(255, 255, 255, 0.06);
+        }
     </style>
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
@@ -374,7 +495,47 @@
                     class="text-[10px] font-medium text-slate-400 dark:text-slate-600 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded">Сегодня</span>
             </div>
             <div id="chat-messages" class="flex flex-col gap-3">
-                <!-- Messages will be inserted here -->
+                <!-- Instant Welcome Hero (shows before API loads) -->
+                <div id="welcome-hero" class="flex items-start gap-2.5 max-w-[85%]">
+                    <div
+                        class="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-primary-dark shrink-0 flex items-center justify-center mt-0.5">
+                        <span class="material-icons-round text-white text-xs">gavel</span>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-surface-lighter px-4 py-3.5 rounded-lg shadow-soft border border-slate-200 dark:border-white/[0.06] w-full">
+                        <div id="hero-title" class="font-semibold text-[14px] mb-2">⚖️ Подготовим проект жалобы за 5
+                            минут</div>
+                        <div id="hero-subtitle" class="text-[12.5px] text-slate-500 dark:text-text-muted mb-3">Чат
+                            задаст вопросы, подберёт статьи закона и ведомство</div>
+                        <div class="flex flex-col gap-2.5 mb-1">
+                            <div class="hero-step">
+                                <div class="hero-step-icon bg-blue-50 dark:bg-blue-500/10 text-blue-500">💬</div>
+                                <div><span class="font-medium">Опишите ситуацию</span> <span
+                                        class="text-slate-400 dark:text-text-muted">— что произошло и с кем</span></div>
+                            </div>
+                            <div class="hero-step">
+                                <div class="hero-step-icon bg-amber-50 dark:bg-amber-500/10 text-amber-500">⚖️</div>
+                                <div><span class="font-medium">Получите проект</span> <span
+                                        class="text-slate-400 dark:text-text-muted">— со ссылками на закон</span></div>
+                            </div>
+                            <div class="hero-step">
+                                <div class="hero-step-icon bg-green-50 dark:bg-green-500/10 text-green-500">📨</div>
+                                <div><span class="font-medium">Отправьте</span> <span
+                                        class="text-slate-400 dark:text-text-muted">— в нужное ведомство</span></div>
+                            </div>
+                        </div>
+                        <div id="hero-chips-container" class="hero-chips">
+                            <span class="hero-chip" data-topic="work">👔 Работодатель</span>
+                            <span class="hero-chip" data-topic="consumer">🛒 Магазин</span>
+                            <span class="hero-chip" data-topic="jkh">🏠 ЖКХ / УК</span>
+                            <span class="hero-chip" data-topic="bank">🏦 Банк</span>
+                            <span class="hero-chip" data-topic="fssp">⚡ Приставы</span>
+                            <span class="hero-chip" data-topic="other">📝 Другое</span>
+                        </div>
+                        <div class="hero-cta-text">👇 Нажмите на тему или опишите ситуацию ниже</div>
+                    </div>
+                </div>
+                <!-- /Welcome Hero -->
             </div>
 
             <!-- Typing Indicator -->
@@ -474,6 +635,77 @@
                 document.getElementById('restart-btn').click();
             });
         }
+
+        // ===== UTM Personalization =====
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const utmTerm = (params.get('utm_term') || '').toLowerCase();
+            if (!utmTerm) return;
+
+            const hero = document.getElementById('welcome-hero');
+            if (!hero) return;
+
+            // Map keywords to personalized content
+            const topics = {
+                'банк': { title: '🏦 Проблема с банком?', sub: 'Расскажите что произошло — подготовим проект жалобы за 5 минут', chips: ['Списали деньги', 'Навязали страховку', 'Отказ в обслуживании', 'Блокировка карты'] },
+                'мфо': { title: '💰 Проблема с МФО?', sub: 'Опишите ситуацию — подготовим жалобу с ссылками на закон', chips: ['Незаконные проценты', 'Угрозы', 'Навязанные услуги', 'Списание без согласия'] },
+                'страхов': { title: '🛡️ Проблема со страховой?', sub: 'Расскажите что случилось — подготовим проект обращения', chips: ['Отказ в выплате', 'Занижение суммы', 'ОСАГО', 'КАСКО'] },
+                'коллектор': { title: '📞 Проблема с коллекторами?', sub: 'Опишите ситуацию — подготовим жалобу на нарушения', chips: ['Угрозы', 'Звонки по ночам', 'Звонят родственникам', 'Незаконные действия'] },
+                'работодат': { title: '👔 Проблема с работодателем?', sub: 'Расскажите что произошло — подготовим жалобу за 5 минут', chips: ['Не платят зарплату', 'Незаконное увольнение', 'Переработки', 'Отказ в отпуске'] },
+                'зарплат': { title: '💸 Не выплатили зарплату?', sub: 'Опишите ситуацию — подготовим жалобу в трудовую инспекцию', chips: ['Задерживают зарплату', 'Не заплатили при увольнении', 'Платят в конверте', 'Другое'] },
+                'трудов': { title: '👔 Жалоба в трудовую инспекцию', sub: 'Расскажите что произошло — подготовим проект обращения', chips: ['Не платят зарплату', 'Незаконное увольнение', 'Нарушение условий', 'Другое'] },
+                'магазин': { title: '🛒 Проблема с магазином?', sub: 'Расскажите что случилось — подготовим жалобу за 5 минут', chips: ['Не возвращают деньги', 'Бракованный товар', 'Обман при продаже', 'Отказ в обмене'] },
+                'маркетплейс': { title: '📦 Проблема с маркетплейсом?', sub: 'Опишите ситуацию — подготовим жалобу на площадку', chips: ['Wildberries', 'Ozon', 'Возврат денег', 'Бракованный товар'] },
+                'продавц': { title: '🛒 Проблема с продавцом?', sub: 'Расскажите что произошло — подготовим жалобу', chips: ['Не возвращают деньги', 'Бракованный товар', 'Обман при продаже', 'Другое'] },
+                'возврат': { title: '💸 Проблема с возвратом денег?', sub: 'Опишите ситуацию — подготовим жалобу за 5 минут', chips: ['Магазин отказал', 'Маркетплейс отказал', 'Услуга не оказана', 'Другое'] },
+                'управляющ': { title: '🏠 Проблема с управляющей компанией?', sub: 'Расскажите что случилось — подготовим жалобу', chips: ['Протечка', 'Нет отопления', 'Грязь в подъезде', 'Завышенные тарифы'] },
+                'жкх': { title: '🏠 Проблема с ЖКХ?', sub: 'Опишите ситуацию — подготовим жалобу за 5 минут', chips: ['Управляющая компания', 'Отопление', 'Протечка', 'Шум от соседей'] },
+                'отоплен': { title: '🌡️ Проблема с отоплением?', sub: 'Опишите ситуацию — подготовим жалобу', chips: ['Нет отопления', 'Холодно в квартире', 'Перетоп', 'Другое'] },
+                'протечк': { title: '💧 Протечка крыши?', sub: 'Расскажите детали — подготовим жалобу на бездействие', chips: ['Течёт крыша', 'Затопили соседи', 'УК не реагирует', 'Другое'] },
+                'сосед': { title: '🏘️ Проблема с соседями?', sub: 'Опишите ситуацию — подготовим проект жалобы', chips: ['Шум', 'Затопление', 'Мусор', 'Курение'] },
+                'полиц': { title: '👮 Проблема с полицией?', sub: 'Опишите ситуацию — подготовим проект обращения', chips: ['Бездействие', 'Превышение полномочий', 'Отказ в приёме заявления', 'Другое'] },
+                'пристав': { title: '⚡ Проблема с приставами?', sub: 'Расскажите что произошло — подготовим жалобу', chips: ['Бездействие', 'Незаконное списание', 'Ошибки', 'Другое'] },
+                'фссп': { title: '⚡ Жалоба на ФССП', sub: 'Расскажите что произошло — подготовим проект обращения', chips: ['Бездействие', 'Незаконное списание', 'Ошибки', 'Другое'] },
+                'школ': { title: '🏫 Проблема со школой?', sub: 'Опишите ситуацию — подготовим жалобу', chips: ['Учитель', 'Директор', 'Поборы', 'Другое'] },
+                'больниц': { title: '🏥 Проблема с больницей?', sub: 'Расскажите что случилось — подготовим жалобу', chips: ['Отказ в помощи', 'Халатность', 'Грубость', 'Другое'] },
+                'врач': { title: '🏥 Проблема с врачом?', sub: 'Расскажите что случилось — подготовим жалобу', chips: ['Отказ в помощи', 'Неправильный диагноз', 'Халатность', 'Другое'] },
+                'такси': { title: '🚕 Проблема с такси?', sub: 'Опишите ситуацию — подготовим жалобу', chips: ['Хамство водителя', 'Обман с ценой', 'Опасное вождение', 'Другое'] },
+                'почт': { title: '📮 Проблема с Почтой России?', sub: 'Расскажите что произошло — подготовим жалобу', chips: ['Потеряли посылку', 'Задержка', 'Грубость', 'Другое'] },
+                'застройщ': { title: '🏗️ Проблема с застройщиком?', sub: 'Опишите ситуацию — подготовим жалобу', chips: ['Срыв сроков', 'Качество', 'ДДУ', 'Другое'] },
+                'провайдер': { title: '📡 Проблема с провайдером?', sub: 'Расскажите что случилось — подготовим жалобу', chips: ['Качество связи', 'Навязанные услуги', 'Списание денег', 'Другое'] },
+                'роспотреб': { title: '🛡️ Жалоба в Роспотребнадзор', sub: 'Расскажите что произошло — подготовим проект обращения', chips: ['Магазин', 'Услуга', 'Возврат денег', 'Другое'] },
+                'прокуратур': { title: '⚖️ Жалоба в прокуратуру', sub: 'Опишите ситуацию — подготовим проект обращения', chips: ['Бездействие госорганов', 'Нарушение прав', 'Коррупция', 'Другое'] },
+                'жилищн': { title: '🏠 Жалоба в жилищную инспекцию', sub: 'Расскажите что случилось — подготовим обращение', chips: ['Управляющая компания', 'Протечка', 'Отопление', 'Другое'] },
+                'чиновник': { title: '🏛️ Проблема с чиновником?', sub: 'Опишите ситуацию — подготовим жалобу', chips: ['Бездействие', 'Произвол', 'Отказ', 'Другое'] },
+                'дорог': { title: '🛣️ Проблема с дорогами?', sub: 'Расскажите детали — подготовим жалобу', chips: ['Ямы', 'Плохое покрытие', 'Нет освещения', 'Другое'] },
+                'автосервис': { title: '🔧 Проблема с автосервисом?', sub: 'Опишите ситуацию — подготовим претензию', chips: ['Некачественный ремонт', 'Обман с ценой', 'Повредили авто', 'Другое'] },
+                'ресторан': { title: '🍽️ Проблема с рестораном?', sub: 'Расскажите что случилось — подготовим жалобу', chips: ['Отравление', 'Антисанитария', 'Обсчитали', 'Другое'] },
+                'авиакомпан': { title: '✈️ Проблема с авиакомпанией?', sub: 'Опишите ситуацию — подготовим претензию', chips: ['Задержка рейса', 'Потеря багажа', 'Отмена рейса', 'Другое'] },
+                'турфирм': { title: '🏖️ Проблема с турфирмой?', sub: 'Расскажите что произошло — подготовим жалобу', chips: ['Отмена тура', 'Не вернули деньги', 'Плохой отель', 'Другое'] },
+                'детский сад': { title: '👶 Проблема с детским садом?', sub: 'Опишите ситуацию — подготовим жалобу', chips: ['Воспитатель', 'Питание', 'Условия', 'Другое'] },
+                'услуг': { title: '📋 Жалоба на услугу', sub: 'Опишите ситуацию — подготовим проект обращения', chips: ['Некачественная работа', 'Не вернули деньги', 'Навязывание', 'Другое'] },
+                'тсж': { title: '🏠 Проблема с ТСЖ?', sub: 'Расскажите что случилось — подготовим жалобу', chips: ['Бездействие', 'Завышенные тарифы', 'Качество услуг', 'Другое'] },
+                'ии ': { title: '🤖 AI составит жалобу', sub: 'Опишите проблему — получите проект обращения со ссылками на закон', chips: ['На работодателя', 'На магазин', 'На ЖКХ/УК', 'Другое'] },
+                'нейросеть': { title: '🤖 Нейросеть для жалобы', sub: 'Опишите ситуацию — AI подготовит проект обращения за 5 минут', chips: ['На работодателя', 'На магазин', 'На ЖКХ/УК', 'Другое'] },
+            };
+
+            // Find matching topic
+            let matched = null;
+            for (const [key, data] of Object.entries(topics)) {
+                if (utmTerm.includes(key)) { matched = data; break; }
+            }
+            if (!matched) return;
+
+            // Apply personalization
+            document.getElementById('hero-title').textContent = matched.title;
+            document.getElementById('hero-subtitle').textContent = matched.sub;
+
+            // Replace chips
+            const container = document.getElementById('hero-chips-container');
+            container.innerHTML = matched.chips.map(c =>
+                '<span class="hero-chip" data-chip="' + c + '">' + c + '</span>'
+            ).join('');
+        })();
     </script>
 
     <!-- Epigraph -->
