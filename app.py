@@ -52,6 +52,7 @@ def index():
         utm_data = {
             'utm_term': request.args.get('utm_term', ''),
             'utm_source': request.args.get('utm_source', ''),
+            'utm_medium': request.args.get('utm_medium', ''),
             'utm_campaign': request.args.get('utm_campaign', ''),
         }
         if utm_term:

@@ -534,10 +534,12 @@
                         <table class="w-full text-xs">
                             <thead>
                                 <tr class="text-left text-text-muted border-b border-surface-border">
-                                    <th class="py-2 pr-3">Время</th>
-                                    <th class="py-2 pr-3">UTM</th>
-                                    <th class="py-2 pr-3">Последний шаг</th>
-                                    <th class="py-2 pr-3">Длительность</th>
+                                    <th class="py-2 pr-2">Время</th>
+                                    <th class="py-2 pr-2">Поисковый запрос</th>
+                                    <th class="py-2 pr-2">Источник</th>
+                                    <th class="py-2 pr-2">Кампания</th>
+                                    <th class="py-2 pr-2">Шаг</th>
+                                    <th class="py-2 pr-2">Время на сайте</th>
                                     <th class="py-2">Шагов</th>
                                 </tr>
                             </thead>
@@ -1223,7 +1225,7 @@
         function renderVisitors(data) {
             const tbody = document.getElementById('funnel-visitors');
             if (!data.visitors || data.visitors.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-text-muted py-6">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-muted py-6">Нет данных</td></tr>';
                 return;
             }
 
@@ -1237,15 +1239,30 @@
                 complaint_sent: 'badge-green'
             };
 
+            // Source type from utm_medium
+            function getSourceLabel(v) {
+                const m = (v.utm_medium || '').toLowerCase();
+                const s = (v.utm_source || '').toLowerCase();
+                if (m === 'cpc' || m === 'search') return '<span class="badge badge-blue">🔍 Поиск</span>';
+                if (m === 'display' || m === 'cpm' || m === 'banner') return '<span class="badge" style="background:rgba(249,115,22,0.15);color:#f97316">📢 РСЯ</span>';
+                if (s === 'yandex' || s === 'google') return '<span class="badge badge-blue">🔍 Поиск</span>';
+                if (s === 'direct') return '<span class="badge badge-gray">🔗 Прямой</span>';
+                if (s) return '<span class="badge badge-gray">' + s + '</span>';
+                return '<span class="badge badge-gray">—</span>';
+            }
+
             tbody.innerHTML = data.visitors.map(v => {
                 const time = v.first_seen ? new Date(v.first_seen).toLocaleString('ru') : '—';
-                const utm = v.utm_term || v.utm_source || '—';
+                const query = v.utm_term ? `<span class="text-white" title="${v.utm_term}">${v.utm_term}</span>` : '<span class="text-text-muted">—</span>';
                 const badge = stepColors[v.last_step] || 'badge-gray';
+                const campaign = v.utm_campaign || '—';
                 return `<tr class="user-row border-b border-surface-border cursor-pointer" onclick="showVisitorDetail('${v.id}')">
-                    <td class="py-2 pr-3">${time}</td>
-                    <td class="py-2 pr-3 text-text-muted max-w-[150px] truncate" title="${v.utm_term}">${utm}</td>
-                    <td class="py-2 pr-3"><span class="badge ${badge}">${v.last_step_name || v.last_step}</span></td>
-                    <td class="py-2 pr-3">${v.duration || '—'}</td>
+                    <td class="py-2 pr-2 whitespace-nowrap">${time}</td>
+                    <td class="py-2 pr-2 max-w-[200px] truncate">${query}</td>
+                    <td class="py-2 pr-2">${getSourceLabel(v)}</td>
+                    <td class="py-2 pr-2 text-text-muted max-w-[120px] truncate" title="${campaign}">${campaign}</td>
+                    <td class="py-2 pr-2"><span class="badge ${badge}">${v.last_step_name || v.last_step}</span></td>
+                    <td class="py-2 pr-2">${v.duration || '—'}</td>
                     <td class="py-2">${v.step_count || 0}</td>
                 </tr>`;
             }).join('');
